@@ -1,0 +1,12 @@
+[build-system]
+requires = ["scikit-build-core>=0.9", "pybind11>=2.12"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "jaql"
+version = "0.1.0"
+description = "Quant finance computation library"
+requires-python = ">=3.10"
+
+[tool.scikit-build]
+cmake.args = ["-DJAQL_BUILD_TESTS=OFF", "-DJAQL_BUILD_BENCHMARKS=OFF"]
