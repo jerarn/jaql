@@ -1,0 +1,127 @@
+# ADR-0001: Conan 2 as C++ Package Manager
+
+| Field        | Value                              |
+|--------------|------------------------------------|
+| Status       | Accepted                           |
+| Date         | 2026-05-16                         |
+| Deciders     | Jeremy Arnaud                      |
+| Supersedes   | —                                  |
+| Superseded by| —                                  |
+
+---
+
+## Context
+
+JAQL depends on several third-party C++ libraries (GoogleTest, Google Benchmark, spdlog,
+Eigen, nlohmann_json, tl-expected). These dependencies need to be managed in a way that
+is:
+
+1. **Reproducible** across developer machines and CI environments.
+2. **Cross-platform**: works on Linux (primary) and Windows (secondary).
+3. **Fast**: does not recompile unchanged dependencies on every clean build.
+4. **Low friction**: developers should be able to set up the project in under 10 minutes.
+5. **Decoupled from the CMake build**: the build system should use standard `find_package()`
+   calls, not depend on a specific package manager's CMake integration.
+
+Three main options were evaluated: **Conan 2**, **vcpkg**, and **CMake FetchContent**.
+
+---
+
+## Decision
+
+**Use Conan 2** in consumer workflow mode with `CMakeDeps` and `CMakeToolchain` generators.
+
+The `conanfile.py` at the repository root declares all dependencies. Developers run
+`conan install . --build=missing` once to populate the local Conan cache. CMake then
+discovers packages via the generated `conan_deps.cmake` and standard `find_package()` calls.
+
+---
+
+## Alternatives Considered
+
+### Option A: vcpkg (manifest mode)
+
+**Pros:**
+- Excellent Visual Studio and VS Code integration (Microsoft-maintained).
+- Simple `vcpkg.json` manifest format.
+- Supports both Windows and Linux natively.
+- Can be used as a CMake subproject or via a system install.
+
+**Cons:**
+- Binary caching is available but less mature and harder to configure for CI compared
+  to Conan 2's binary management.
+- Package configuration is less expressive than a Python `conanfile.py` — difficult to
+  express conditional dependencies or multi-configuration settings.
+- Less common in institutional quant shops that often run Linux-only CI environments.
+- Slower build times on CI when binary cache misses occur (no centralised binary server
+  for custom profiles by default).
+
+### Option B: CMake FetchContent
+
+**Pros:**
+- Zero external tool dependencies — only CMake required.
+- Trivial to add: one `FetchContent_Declare()` call per dependency.
+- Works everywhere CMake works.
+
+**Cons:**
+- Downloads and rebuilds dependencies on every clean build (no binary cache).
+- Not suitable for large dependencies like Eigen (slow to build from source).
+- No version resolution: transitive dependency conflicts are resolved manually.
+- Mixes dependency management with build logic in CMakeLists files.
+- Not suitable for production use where reproducible builds and build time matter.
+
+### Option C: Conan 2 (chosen)
+
+**Pros:**
+- Mature binary caching: ConanCenter provides pre-built binaries for common
+  compiler/OS/architecture profiles. `--build=missing` only builds what is not cached.
+- `CMakeDeps` generator produces standard CMake `find_package()`-compatible config files.
+  No Conan-specific CMake calls leak into the module build files.
+- `CMakeToolchain` generator sets up the correct compiler flags, ensuring ABI
+  compatibility between JAQL and its dependencies.
+- `conanfile.py` is a full Python file: conditional dependencies, options, and custom
+  build steps are expressible without CMake hacks.
+- Profile system: multi-platform, multi-compiler builds are cleanly modelled as Conan
+  profiles (`debug`, `release`, `clang17`, `gcc13`, etc.).
+- Widely used in C++ quant shops with large C++ dependency trees.
+
+**Cons:**
+- Requires Python and a `pip install conan` step.
+- Conan 2 is a breaking change from Conan 1 — `conanfile.py` syntax changed. Teams
+  familiar with Conan 1 need a migration step.
+- Slightly more setup than FetchContent for a project with very few dependencies.
+
+---
+
+## Consequences
+
+### Positive
+
+- Developers get a fast, reproducible build environment after a one-time `conan install`.
+- CI runs use the same binary cache, dramatically reducing build time for unchanged
+  dependencies.
+- Dependency versions are pinned in `conanfile.py` and reviewed like source code.
+- Adding a new dependency is a two-step change: `conanfile.py` + `cmake/Dependencies.cmake`.
+
+### Negative / Mitigations
+
+- **Python required**: Python 3.8+ must be available on all developer machines and CI
+  runners. This is true of all modern Linux environments and GitHub-hosted runners.
+  *Mitigation: `scripts/bootstrap.sh` verifies the Python and Conan versions.*
+
+- **Conan profile setup**: Developers must run `conan profile detect` on first use.
+  *Mitigation: `scripts/bootstrap.sh` runs `conan profile detect` automatically if no
+  default profile exists.*
+
+- **Conan 1 vs 2 confusion**: Documentation and online resources often refer to Conan 1
+  syntax. *Mitigation: all JAQL documentation and scripts use Conan 2 syntax exclusively.
+  A note in the README clarifies the required version.*
+
+---
+
+## Future Considerations
+
+- If the project adds Windows-heavy users who strongly prefer vcpkg, a vcpkg manifest
+  can be added alongside Conan without conflict — both produce `find_package()`-compatible
+  outputs. The CI would pick one as authoritative.
+- If Conan 3 introduces breaking changes, a new ADR will document the migration decision.
