@@ -36,5 +36,6 @@
     "search.exclude": {
         "**/build/**": true,
         "**/.conan2/**": true
-    }
+    },
+    "python-envs.defaultEnvManager": "ms-python.python:pyenv"
 }
