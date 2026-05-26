@@ -1,0 +1,185 @@
+{
+    "version": 7,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 25,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "toolchainFile": "${sourceDir}/build/${presetName}/conan_toolchain.cmake"
+        },
+        {
+            "name": "jaql-debug",
+            "displayName": "Debug (ASan + UBSan)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_BUILD_BENCHMARKS": "OFF",
+                "JAQL_ENABLE_ASAN": "ON",
+                "JAQL_ENABLE_UBSAN": "ON"
+            }
+        },
+        {
+            "name": "jaql-release",
+            "displayName": "Release",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_BUILD_BENCHMARKS": "OFF"
+            }
+        },
+        {
+            "name": "ci-linux",
+            "displayName": "CI Linux (coverage + Werror)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_BUILD_BENCHMARKS": "OFF",
+                "JAQL_ENABLE_COVERAGE": "ON",
+                "JAQL_WARNINGS_AS_ERRORS": "ON"
+            }
+        },
+        {
+            "name": "asan",
+            "displayName": "AddressSanitizer",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_ENABLE_ASAN": "ON"
+            }
+        },
+        {
+            "name": "ubsan",
+            "displayName": "UndefinedBehaviorSanitizer",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_ENABLE_UBSAN": "ON"
+            }
+        },
+        {
+            "name": "tsan",
+            "displayName": "ThreadSanitizer",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_ENABLE_TSAN": "ON"
+            }
+        },
+        {
+            "name": "benchmark",
+            "displayName": "Benchmark (Release + LTO)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "JAQL_BUILD_TESTS": "OFF",
+                "JAQL_BUILD_BENCHMARKS": "ON",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "jaql-debug",
+            "configurePreset": "jaql-debug"
+        },
+        {
+            "name": "jaql-release",
+            "configurePreset": "jaql-release"
+        },
+        {
+            "name": "ci-linux",
+            "configurePreset": "ci-linux"
+        },
+        {
+            "name": "asan",
+            "configurePreset": "asan"
+        },
+        {
+            "name": "ubsan",
+            "configurePreset": "ubsan"
+        },
+        {
+            "name": "tsan",
+            "configurePreset": "tsan"
+        },
+        {
+            "name": "benchmark",
+            "configurePreset": "benchmark"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "jaql-debug",
+            "configurePreset": "jaql-debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "jaql-release",
+            "configurePreset": "jaql-release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "ci-linux",
+            "configurePreset": "ci-linux",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "asan",
+            "configurePreset": "asan",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "ubsan",
+            "configurePreset": "ubsan",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "tsan",
+            "configurePreset": "tsan",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "jaql-debug",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "jaql-debug"
+                },
+                {
+                    "type": "build",
+                    "name": "jaql-debug"
+                },
+                {
+                    "type": "test",
+                    "name": "jaql-debug"
+                }
+            ]
+        }
+    ]
+}
