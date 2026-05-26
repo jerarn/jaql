@@ -1,0 +1,49 @@
+---
+# Enable the three check families mandated by docs/coding-standards.md.
+# Specific checks are disabled where they are known to produce false positives
+# in quantitative C++ code or conflict with JAQL's style choices.
+Checks: >
+  cppcoreguidelines-*,
+  modernize-*,
+  readability-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-type-vararg
+
+# Treat every enabled check as an error — the same threshold used in CI
+# (JAQL_WARNINGS_AS_ERRORS=ON on the ci-linux preset).
+WarningsAsErrors: "*"
+
+# Only diagnose JAQL's own headers; suppress noise from Conan deps and system headers.
+HeaderFilterRegex: "include/jaql/.*"
+
+# Enforce JAQL naming conventions (docs/coding-standards.md § Naming Conventions).
+CheckOptions:
+  - key:   readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key:   readability-identifier-naming.StructCase
+    value: CamelCase
+  - key:   readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key:   readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+  - key:   readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key:   readability-identifier-naming.MethodCase
+    value: lower_case
+  - key:   readability-identifier-naming.VariableCase
+    value: lower_case
+  - key:   readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key:   readability-identifier-naming.MemberCase
+    value: lower_case
+  - key:   readability-identifier-naming.PrivateMemberSuffix
+    value: _
+  - key:   readability-identifier-naming.NamespaceCase
+    value: lower_case
+  - key:   readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key:   readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+...

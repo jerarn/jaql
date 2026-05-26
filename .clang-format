@@ -1,0 +1,12 @@
+---
+BasedOnStyle: Google
+ColumnLimit:  100
+Standard:     Latest   # parse as the latest C++ standard (C++23 on clang-format 17+)
+
+# Pointer/reference placement: int* p, const T& ref — left-aligned.
+PointerAlignment: Left
+
+# Keep include sort stable within manually-separated groups (blank lines = group boundary).
+IncludeBlocks:  Preserve
+SortIncludes:   CaseSensitive
+...
