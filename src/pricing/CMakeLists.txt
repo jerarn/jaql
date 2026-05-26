@@ -1,0 +1,10 @@
+jaql_add_module(
+    pricing
+    DEPS
+        jaql::curves
+        jaql::instruments
+        jaql::market
+        jaql::math
+        jaql::core
+        jaql::infra
+)

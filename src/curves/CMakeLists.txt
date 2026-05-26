@@ -1,0 +1,9 @@
+jaql_add_module(
+    curves
+    DEPS
+        jaql::math
+        jaql::instruments
+        jaql::market
+        jaql::core
+        jaql::infra
+)
