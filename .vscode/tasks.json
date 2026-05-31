@@ -1,0 +1,88 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "JAQL: Bootstrap",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/bootstrap.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "detail": "Install Conan dependencies and configure the default jaql-debug preset."
+        },
+        {
+            "label": "JAQL: Configure",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset",
+                "jaql-debug"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Re-run CMake configure for the default jaql-debug preset."
+        },
+        {
+            "label": "JAQL: Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "jaql-debug"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Build the default jaql-debug preset."
+        },
+        {
+            "label": "JAQL: Test",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/test.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "Run the default ctest preset with output-on-failure enabled."
+        },
+        {
+            "label": "JAQL: Format",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/format.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "detail": "Run clang-format across tracked C++ headers and sources."
+        },
+        {
+            "label": "JAQL: Lint",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/lint.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "detail": "Run clang-tidy against tracked translation units using the default preset build directory."
+        }
+    ]
+}

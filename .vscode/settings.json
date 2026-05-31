@@ -13,6 +13,10 @@
     // Ensure the C/C++ IntelliSense engine defers to clangd (if ms-vscode.cpptools
     // is also installed, disable its IntelliSense to avoid conflicts).
     "C_Cpp.intelliSenseEngine": "disabled",
+    // Keep the editor on the repository's preset-driven build layout.
+    "cmake.useCMakePresets": "always",
+    // Bootstrap/configure tasks install Conan dependencies before configuring.
+    "cmake.configureOnOpen": false,
     // Associate .hpp files with C++ so language features activate correctly.
     "files.associations": {
         "*.hpp": "cpp",
@@ -21,8 +25,7 @@
     // Format on save using the repo's .clang-format (Google style, column 100).
     "editor.formatOnSave": true,
     "[cpp]": {
-        // "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
-        "editor.defaultFormatter": "ms-vscode.cpp-devtools"
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
     },
     // Trim trailing whitespace and ensure a final newline — consistent with
     // clang-format's output.
