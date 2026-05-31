@@ -70,10 +70,22 @@ jobs:
       - name: Test
         run: ./scripts/test.sh --preset ci-linux
 
+      - name: Detect coverage data
+        id: coverage-data
+        run: |
+          if find build/ci-linux -name '*.gcda' -print -quit | grep -q .; then
+            echo 'found=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'found=false' >> "$GITHUB_OUTPUT"
+            echo 'No .gcda files were produced; skipping coverage artifact generation.'
+          fi
+
       - name: Generate coverage report
+        if: steps.coverage-data.outputs.found == 'true'
         run: cmake --build --preset ci-linux --target coverage
 
       - name: Upload coverage artifact
+        if: steps.coverage-data.outputs.found == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-linux-gcc13
