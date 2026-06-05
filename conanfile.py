@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.cmake import CMakeDeps, CMakeToolchain
 
 
 class JaqlConan(ConanFile):
@@ -6,7 +7,7 @@ class JaqlConan(ConanFile):
     version = "0.1.0"
     description = "Modular C++23 quantitative finance library"
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain"
+    generators = "CMakeDeps"
 
     def requirements(self):
         self.requires("tl-expected/1.1.0")
@@ -17,3 +18,9 @@ class JaqlConan(ConanFile):
     def build_requirements(self):
         self.test_requires("gtest/1.14.0")
         self.test_requires("benchmark/1.8.3")
+
+    def generate(self):
+        toolchain = CMakeToolchain(self)
+        # Keep repository presets as the single source of truth.
+        toolchain.user_presets_path = False
+        toolchain.generate()

@@ -48,6 +48,7 @@ done
 repo_root="$(jaql_repo_root)"
 build_dir="$(jaql_build_dir "${preset}")"
 build_type="$(jaql_preset_build_type "${preset}")"
+user_presets_file="${repo_root}/CMakeUserPresets.json"
 
 jaql_require_command cmake "Install CMake 3.25+ and ensure it is on PATH."
 jaql_require_command ninja "Install Ninja 1.11+ and ensure it is on PATH."
@@ -57,6 +58,11 @@ jaql_ensure_conan_profile "${host_profile}"
 jaql_ensure_conan_profile "${build_profile}"
 
 mkdir -p "${build_dir}"
+
+if [[ -f "${user_presets_file}" ]]; then
+    printf 'Removing stale %s to avoid CMake preset collisions\n' "${user_presets_file}"
+    rm -f -- "${user_presets_file}"
+fi
 
 printf 'Installing Conan dependencies into %s\n' "${build_dir}"
 (
