@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "JAQL: Debug test_infra_logger",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/gcc-debug/tests/unit/infra/test_infra_logger",
+            "args": [
+                "--gtest_filter=${input:gtestFilter}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "preLaunchTask": "JAQL: Build"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "gtestFilter",
+            "type": "promptString",
+            "description": "GTest filter (use * to run all tests)",
+            "default": "*"
+        }
+    ]
+}
