@@ -9,15 +9,12 @@ Thank you for your interest in contributing. This file provides the essential qu
 **Prerequisites:** CMake 3.25+, GCC 13+ or Clang 17+, Ninja (recommended), Conan 2.
 
 ```bash
-# Install dependencies
-conan install . --build=missing -pr:b=default -pr:h=default
-
-# Configure
-cmake --preset gcc-debug
+# Install dependencies and configure
+./scripts/bootstrap.sh
 
 # Build and test
 cmake --build --preset gcc-debug
-ctest --preset gcc-debug --output-on-failure
+./scripts/test.sh
 ```
 
 ---
@@ -69,7 +66,7 @@ test(core): prevent StrongType implicit conversion at compile time
 
 Before opening a PR, verify all of the following:
 
-- [ ] All tests pass: `ctest --preset gcc-debug --output-on-failure`
+- [ ] All tests pass: `./scripts/test.sh`
 - [ ] No formatting violations: `scripts/format.sh && git diff --exit-code`
 - [ ] No clang-tidy warnings: `scripts/lint.sh`
 - [ ] All public headers are self-contained: `scripts/check_headers.sh`

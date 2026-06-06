@@ -8,51 +8,38 @@ cross-platform builds.
 
 ## Prerequisites
 
-Install all required tools before starting:
+See [docs/dev/setup.md](dev/setup.md) for the full install procedure. Summary:
 
-```bash
-# CMake 3.25+
-# On Ubuntu:
-sudo apt install cmake ninja-build
-
-# Optional: clang-format and clang-tidy for formatting and linting
-sudo apt install clang-format-17 clang-tidy-17
-
-# Conan 2 (requires Python 3.8+)
-pip install conan
-conan profile detect
-```
-
-Verify:
-
-```bash
-cmake --version    # must be ≥ 3.25
-ninja --version    # must be ≥ 1.11
-conan --version    # must be ≥ 2.0
-```
+- CMake 3.25+, Ninja 1.11+, GCC 13+ or Clang 17+
+- Conan 2.4+ (`pip install conan && conan profile detect`)
 
 ---
 
-## Dependency Installation with Conan 2
+## Dependency Installation and Configure
 
-JAQL uses Conan 2 in [consumer workflow](https://docs.conan.io/2/) mode. All
-dependencies will be declared in `conanfile.py` at the repository root.
+JAQL uses Conan 2 in [consumer workflow](https://docs.conan.io/2/) mode with a
+script-first local workflow.
 
-### Step 1: Install dependencies
+### Recommended bootstrap flow
 
 ```bash
-# From the repository root:
-conan install . --build=missing -pr:b=default -pr:h=default
+./scripts/bootstrap.sh
 ```
 
-This resolves all dependencies, builds any that are not available as pre-built binaries,
-and writes `conan_toolchain.cmake` and `conan_deps.cmake` into the build directory.
+The bootstrap script installs Conan dependencies into the selected preset build
+directory and then runs `cmake --preset <preset>`. By default it uses `gcc-debug`.
 
-The `--build=missing` flag builds dependencies from source only when no compatible
-binary is found in the cache or remote. On subsequent runs with the same compiler and
-settings, binaries are served from the Conan cache — no recompilation.
+### Advanced bootstrap usage
 
-### Step 2: Inspect the dependency graph
+```bash
+# Alternate preset
+./scripts/bootstrap.sh --preset clang-debug
+
+# Explicit Conan host/build profiles (same model used in CI)
+./scripts/bootstrap.sh --preset ci-gcc-debug --host-profile ci-gcc13 --build-profile ci-gcc13
+```
+
+### Inspect the dependency graph
 
 ```bash
 conan graph info . --format=text
@@ -104,15 +91,20 @@ ctest --preset <preset-name> --output-on-failure
 
 ### Available Presets
 
-| Preset        | Build Type | Sanitizers      | Tests | Benchmarks | Extra Flags          |
-|---------------|------------|-----------------|-------|------------|----------------------|
-| `gcc-debug`   | Debug      | ASan + UBSan    | ON    | OFF        | Full debug info      |
-| `gcc-release` | Release    | —               | ON    | OFF        | -O2, NDEBUG          |
-| `ci-gcc-debug`    | Debug      | —               | ON    | OFF        | Coverage, -Werror    |
-| `asan`        | Debug      | ASan            | ON    | OFF        |                      |
-| `ubsan`       | Debug      | UBSan           | ON    | OFF        |                      |
-| `tsan`        | Debug      | TSan            | ON    | OFF        | Incompatible with ASan |
-| `benchmark`   | Release    | —               | OFF   | ON         | LTO, -O3, NDEBUG     |
+| Preset             | Build Type | Sanitizers   | Tests | Benchmarks | Extra Flags               |
+|--------------------|------------|--------------|-------|------------|---------------------------|
+| `gcc-debug`        | Debug      | ASan + UBSan | ON    | OFF        | Full debug info           |
+| `gcc-release`      | Release    | —            | ON    | OFF        | Optimized build           |
+| `clang-debug`      | Debug      | ASan + UBSan | ON    | OFF        | Clang toolchain validation|
+| `clang-release`    | Release    | —            | ON    | OFF        | Clang release validation  |
+| `ci-gcc-debug`     | Debug      | —            | ON    | OFF        | Coverage, -Werror         |
+| `ci-clang-debug`   | Debug      | —            | ON    | OFF        | -Werror                   |
+| `ci-gcc-release`   | Release    | —            | ON    | OFF        | -Werror                   |
+| `ci-clang-release` | Release    | —            | ON    | OFF        | -Werror                   |
+| `asan`             | Debug      | ASan         | ON    | OFF        |                           |
+| `ubsan`            | Debug      | UBSan        | ON    | OFF        |                           |
+| `tsan`             | Debug      | TSan         | ON    | OFF        | Incompatible with ASan    |
+| `benchmark`        | Release    | —            | OFF   | ON         | LTO                       |
 
 ### Build Directory Layout
 
@@ -147,6 +139,22 @@ These options can be set on the command line with `-D<OPTION>=ON/OFF` or via a p
 | `JAQL_ENABLE_COVERAGE`        | `OFF`   | Enable gcov/lcov coverage instrumentation        |
 | `JAQL_ENABLE_CLANG_TIDY`      | `OFF`   | Run clang-tidy during the build                  |
 | `JAQL_WARNINGS_AS_ERRORS`     | `OFF`   | Treat all warnings as errors (-Werror)           |
+| `JAQL_BUILD_DOCS`             | `OFF`   | Enable the `doxygen` documentation target        |
+
+---
+
+## Doxygen Pipeline
+
+The repository includes a Doxygen template at `docs/Doxyfile.in` and an optional CMake
+target enabled by passing `--docs` to bootstrap.
+
+```bash
+./scripts/bootstrap.sh --docs
+cmake --build --preset gcc-debug --target doxygen
+```
+
+`--docs` installs Doxygen via Conan and injects `DOXYGEN_EXECUTABLE` and
+`JAQL_BUILD_DOCS=ON` into the CMake cache automatically.
 
 ---
 
@@ -236,8 +244,8 @@ See `.vscode/settings.json` for the pre-configured workspace settings.
 1. Open the repository folder. CLion detects `CMakePresets.json` automatically
    (CLion 2023.2+).
 2. Select `gcc-debug` as the active configuration.
-3. Conan integration: install the [Conan plugin](https://plugins.jetbrains.com/plugin/11956-conan)
-   or run `conan install .` before configuring — _once Conan integration is active_.
+3. Run `./scripts/bootstrap.sh --preset gcc-debug` before first configure when Conan
+   artifacts are missing.
 
 ### compile_commands.json
 
@@ -256,12 +264,12 @@ ln -sf build/gcc-debug/compile_commands.json compile_commands.json
 The GitHub Actions CI pipeline is defined in `.github/workflows/ci.yml`. It:
 
 1. Checks out the repository.
-2. Installs Conan 2 via `pip` and detects the default profile.
-3. Runs `conan install . --build=missing`.
-4. Configures CMake with the `ci-gcc-debug` preset.
-5. Builds all targets.
-6. Runs `ctest --output-on-failure`.
-7. (On the GCC 13 Debug runner) uploads a coverage report to the CI artifacts.
+2. Installs compiler/toolchain packages and Conan.
+3. Creates explicit Conan profiles for each matrix entry.
+4. Runs `./scripts/bootstrap.sh --preset <ci-preset> --host-profile <profile> --build-profile <profile>`.
+5. Builds all targets with `cmake --build --preset <ci-preset>`.
+6. Runs tests with `./scripts/test.sh --preset <ci-preset>`.
+7. On the GCC 13 Debug CI job, conditionally generates and uploads coverage artifacts.
 
 The pipeline runs on every push to every branch.
 
@@ -272,6 +280,7 @@ The pipeline runs on every push to every branch.
 | Script                    | Purpose                                                  |
 |---------------------------|----------------------------------------------------------|
 | `scripts/bootstrap.sh`    | Install Conan deps and configure for development          |
+| `scripts/test.sh`         | Run ctest using the selected test preset                 |
 | `scripts/format.sh`       | Run clang-format on all .hpp/.cpp files (in-place)       |
 | `scripts/lint.sh`         | Run clang-tidy on all source files                       |
 | `scripts/check_headers.sh`| Verify every public header compiles standalone           |

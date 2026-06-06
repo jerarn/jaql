@@ -53,10 +53,11 @@ See [Architecture Overview](docs/architecture/overview.md) for the full design.
 
 **Build tools:**
 
-| Tool  | Minimum Version | Notes                            |
-|-------|-----------------|----------------------------------|
-| CMake | 3.25            | Required for `CMakePresets.json` |
-| Ninja | 1.11            | Recommended generator            |
+| Tool  | Minimum Version | Notes                                      |
+|-------|-----------------|--------------------------------------------|
+| CMake | 3.25            | Required for `CMakePresets.json`            |
+| Ninja | 1.11            | Recommended generator                      |
+| Conan | 2.4+            | C++ package manager — `pip install conan`  |
 
 **Compiler — one of:**
 
@@ -79,33 +80,32 @@ See [Architecture Overview](docs/architecture/overview.md) for the full design.
 git clone https://github.com/jerarn/jaql.git
 cd jaql
 
-# Install dependencies via Conan 2
-conan install . --build=missing -pr:b=default -pr:h=default
-
-# Configure — debug build with AddressSanitizer + UndefinedBehaviorSanitizer
-cmake --preset gcc-debug
+# Install dependencies and configure the default preset
+./scripts/bootstrap.sh
 
 # Build
 cmake --build --preset gcc-debug
 
 # Run tests
-ctest --preset gcc-debug --output-on-failure
-
-# Run the example
-./build/gcc-debug/examples/hello_jaql/hello_jaql
+./scripts/test.sh
 ```
 
 ### Build Presets Reference
 
-| Preset          | Purpose                           | Sanitizers   | Tests | Benchmarks |
-|-----------------|-----------------------------------|--------------|-------|------------|
-| `gcc-debug`    | Daily development                 | ASan + UBSan | ✓     | —          |
-| `gcc-release`  | Optimized development             | —            | ✓     | —          |
-| `ci-gcc-debug`      | CI pipeline (coverage + -Werror)  | —            | ✓     | —          |
-| `asan`          | Memory safety validation          | ASan         | ✓     | —          |
-| `ubsan`         | Undefined behaviour detection     | UBSan        | ✓     | —          |
-| `tsan`          | Thread safety validation          | TSan         | ✓     | —          |
-| `benchmark`     | Performance measurement (LTO)     | —            | —     | ✓          |
+| Preset             | Purpose                            | Sanitizers   | Tests | Benchmarks |
+|--------------------|------------------------------------|--------------|-------|------------|
+| `gcc-debug`        | Daily development                  | ASan + UBSan | ✓     | —          |
+| `gcc-release`      | Optimized development              | —            | ✓     | —          |
+| `clang-debug`      | Alternate compiler debug checks    | ASan + UBSan | ✓     | —          |
+| `clang-release`    | Alternate compiler release checks  | —            | ✓     | —          |
+| `ci-gcc-debug`     | CI debug with coverage and -Werror | —            | ✓     | —          |
+| `ci-clang-debug`   | CI clang debug with -Werror        | —            | ✓     | —          |
+| `ci-gcc-release`   | CI gcc release with -Werror        | —            | ✓     | —          |
+| `ci-clang-release` | CI clang release with -Werror      | —            | ✓     | —          |
+| `asan`             | Memory safety validation           | ASan         | ✓     | —          |
+| `ubsan`            | Undefined behaviour detection      | UBSan        | ✓     | —          |
+| `tsan`             | Thread safety validation           | TSan         | ✓     | —          |
+| `benchmark`        | Performance measurement (LTO)      | —            | —     | ✓          |
 
 ---
 
@@ -120,8 +120,10 @@ ctest --preset gcc-debug --output-on-failure
 | [Tech Stack](docs/tech-stack.md)                                     | All tools, libraries, versions, and justifications       |
 | [Coding Standards](docs/coding-standards.md)                         | Naming, headers, namespaces, templates, error handling   |
 | [Testing Strategy](docs/testing-strategy.md)                         | Unit, integration, regression, benchmarking approach     |
-| [Build System](docs/build-system.md)                                 | CMake presets, Conan 2 workflow, IDE integration         |
+| [Build System](docs/build-system.md)                                 | CMake presets, Conan 2 workflow, scripts, IDE integration|
 | [Contributing](CONTRIBUTING.md)                                      | Branch strategy, PR workflow, commit conventions         |
+| [Dev Setup (Linux)](docs/dev/setup.md)                               | Fast local setup and validation path                     |
+| [VS Code Workflow](docs/dev/vscode-workflow.md)                      | Tasks, debug launch, and daily editor loop               |
 
 ---
 

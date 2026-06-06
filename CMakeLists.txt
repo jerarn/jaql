@@ -25,6 +25,7 @@ option(JAQL_ENABLE_TSAN        "Enable ThreadSanitizer"                    OFF)
 option(JAQL_ENABLE_COVERAGE    "Enable gcov/lcov coverage instrumentation" OFF)
 option(JAQL_ENABLE_CLANG_TIDY  "Run clang-tidy during the build"           OFF)
 option(JAQL_WARNINGS_AS_ERRORS "Treat all warnings as errors (-Werror)"    OFF)
+option(JAQL_BUILD_DOCS         "Enable Doxygen documentation target"       OFF)
 
 # ── CMake helpers ─────────────────────────────────────────────────────────────
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -32,6 +33,7 @@ include(GNUInstallDirs)
 include(JaqlModule)
 include(CompilerWarnings)
 include(Sanitizers)
+include(JaqlDoxygen)
 
 # ── clang-tidy integration ────────────────────────────────────────────────────
 if(JAQL_ENABLE_CLANG_TIDY)
@@ -57,6 +59,10 @@ endif()
 
 if(JAQL_BUILD_BENCHMARKS)
     find_package(benchmark REQUIRED)
+endif()
+
+if(JAQL_BUILD_DOCS)
+    jaql_enable_doxygen()
 endif()
 
 # ── Source tree ───────────────────────────────────────────────────────────────

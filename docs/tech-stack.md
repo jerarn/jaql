@@ -40,11 +40,11 @@ cross-platform builds. Earlier versions of these compilers have known C++23 conf
 |--------------------|-----------|--------------------------------------------|
 | **CMake**          | 3.25+     | Build system generator                     |
 | **Ninja**          | 1.11+     | Build backend (recommended over Make)      |
-| **CMakePresets**   | v6        | Standardised, IDE-integrated build configs |
+| **CMakePresets**   | v7        | Standardised, IDE-integrated build configs |
 
 ### Rationale
 
-CMake 3.25 is the minimum required for `CMakePresets.json` schema version 6, which
+CMake 3.25 is the minimum required for `CMakePresets.json` schema version 7, which
 supports `testPresets` and `buildPresets` in addition to `configurePresets`. Ninja is
 preferred over GNU Make for significantly faster incremental builds on Linux.
 
@@ -84,12 +84,12 @@ conan search <package> -r conancenter
 
 ### Core Dependencies
 
-| Library           | Version | Conan Ref              | Status    | Purpose                                      |
-|-------------------|---------|------------------------|-----------|----------------------------------------------|
-| **tl-expected**   | 1.1.0   | `tl-expected/1.1.0`    | Planned   | `Result<T>` — polyfill for `std::expected`   |
-| **spdlog**        | 1.13.0  | `spdlog/1.13.0`        | Planned   | Structured logging with async support        |
-| **Eigen**         | 3.4.0   | `eigen/3.4.0`          | Planned   | Linear algebra (matrices, vectors, solvers)  |
-| **nlohmann_json** | 3.11.3  | `nlohmann_json/3.11.3` | Planned   | JSON config parsing and output serialization |
+| Library           | Version | Conan Ref              | Status | Purpose                                      |
+|-------------------|---------|------------------------|--------|----------------------------------------------|
+| **tl-expected**   | 1.1.0   | `tl-expected/1.1.0`    | Active | `Result<T>` — polyfill for `std::expected`   |
+| **spdlog**        | 1.13.0  | `spdlog/1.13.0`        | Active | Structured logging with async support        |
+| **Eigen**         | 3.4.0   | `eigen/3.4.0`          | Active | Linear algebra (matrices, vectors, solvers)  |
+| **nlohmann_json** | 3.11.3  | `nlohmann_json/3.11.3` | Active | JSON config parsing and output serialization |
 
 #### `tl-expected` vs `std::expected`
 
@@ -104,7 +104,7 @@ will be dropped in favour of the standard library type with no call-site changes
 | Library              | Version | Conan Ref           | Status  | Purpose                      |
 |----------------------|---------|---------------------|---------|------------------------------|
 | **GoogleTest**       | 1.14.0  | `gtest/1.14.0`      | Active  | Unit and integration testing |
-| **Google Benchmark** | 1.8.3   | `benchmark/1.8.3`   | Planned | Micro-benchmarking           |
+| **Google Benchmark** | 1.8.3   | `benchmark/1.8.3`   | Active  | Micro-benchmarking           |
 
 ---
 
@@ -142,11 +142,12 @@ will be dropped in favour of the standard library type with no call-site changes
 
 | Tool          | Version | Purpose                                             |
 |---------------|---------|-----------------------------------------------------|
-| **Doxygen**   | 1.10+   | API documentation from `///` source comments        |
+| **Doxygen**   | 1.17+   | API documentation from `///` source comments        |
 | **Graphviz**  | 9.0+    | Call graphs and dependency diagrams in Doxygen output|
 
 The Doxygen configuration lives in [docs/Doxyfile.in](Doxyfile.in), processed by CMake.
-Generated HTML is deployed to GitHub Pages via the `docs` workflow.
+Generated HTML and XML are produced in the local build directory via the `doxygen`
+target. Automated publishing is not yet configured in CI.
 
 Optional (future): Sphinx with Breathe extension for narrative documentation alongside
 API docs.
@@ -157,16 +158,14 @@ API docs.
 
 | Service              | Purpose                                              |
 |----------------------|------------------------------------------------------|
-| **GitHub Actions**   | CI pipeline (build, test, coverage, docs, release)   |
+| **GitHub Actions**   | CI pipeline (build, test, lint, coverage artifacts) |
 
 ### CI Runners
 
 | Runner              | Compiler     | Used For                         |
 |---------------------|--------------|----------------------------------|
-| `ubuntu-22.04`      | GCC 13       | Primary CI build and tests       |
-| `ubuntu-22.04`      | Clang 17     | Alternate compiler validation    |
-| `ubuntu-24.04`      | GCC 13       | Forward compatibility check      |
-| `windows-latest`    | MSVC 2022    | Cross-platform validation        |
+| `ubuntu-24.04`      | GCC 13       | GCC debug/release CI and lint    |
+| `ubuntu-24.04`      | Clang 17     | Clang debug/release CI           |
 
 ---
 

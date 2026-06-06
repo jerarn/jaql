@@ -9,46 +9,7 @@ For a quick reference, see the root [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Development Environment
 
-### Required Tools
-
-| Tool            | Version   | Install                                        |
-|-----------------|-----------|------------------------------------------------|
-| GCC or Clang    | 13 / 17   | `apt install gcc-13` or `apt install clang-17` |
-| CMake           | 3.25+     | `apt install cmake` or https://cmake.org       |
-| Ninja           | 1.11+     | `apt install ninja-build`                      |
-| Conan           | 2.4+      | `pip install conan`                            |
-| clang-format    | 17+       | `apt install clang-format-17`                  |
-| clang-tidy      | 17+       | `apt install clang-tidy-17`                    |
-
-### First-Time Setup
-
-```bash
-# 1. Clone
-git clone https://github.com/jerarn/jaql.git
-cd jaql
-
-# 2. Install Conan 2 and create a default profile
-pip install conan
-conan profile detect
-
-# 3. Run the bootstrap script (installs deps, configures gcc-debug)
-./scripts/bootstrap.sh
-
-# 4. Build and test
-cmake --build --preset gcc-debug
-ctest --preset gcc-debug --output-on-failure
-
-# 5. Create a symlink to compile_commands.json (for clangd/IDE)
-ln -sf build/gcc-debug/compile_commands.json compile_commands.json
-```
-
-### Verifying the Setup
-
-A successful setup produces:
-- All CMake configure steps passing with no warnings.
-- All targets building with 0 compiler warnings.
-- `ctest` reporting all tests passed.
-- The `hello_jaql` example printing `JAQL v0.1.0`.
+See [docs/dev/setup.md](dev/setup.md) for the full install and bootstrap procedure.
 
 ---
 
@@ -169,8 +130,7 @@ The project is pre-1.0.0. MINOR bumps may contain breaking changes during this p
    git tag -a vX.Y.Z -m "Release X.Y.Z"
    git push origin vX.Y.Z
    ```
-4. The `release` GitHub Actions workflow triggers automatically on the tag push and
-   creates a GitHub Release.
+4. Create the GitHub Release manually from the tag until a dedicated release workflow is added.
 
 ---
 
@@ -182,7 +142,7 @@ The project is pre-1.0.0. MINOR bumps may contain breaking changes during this p
 2. Evaluate: license compatibility (MIT, Apache 2.0, BSD preferred), maintenance
    status, version stability.
 3. Add to `conanfile.py` under `requires`.
-4. Add to `cmake/Dependencies.cmake` with a `find_package()` call.
+4. Add the corresponding `find_package()` call in the root `CMakeLists.txt`.
 5. Document in [docs/tech-stack.md](tech-stack.md) with version, purpose, and
    alternatives considered.
 
@@ -190,7 +150,7 @@ The project is pre-1.0.0. MINOR bumps may contain breaking changes during this p
 
 1. Check the upstream changelog for breaking changes.
 2. Bump the version in `conanfile.py`.
-3. Run the full test suite: `ctest --preset ci-gcc-debug`.
+3. Run the full test suite: `./scripts/test.sh --preset ci-gcc-debug`.
 4. Update the version in [docs/tech-stack.md](tech-stack.md).
 5. Commit: `chore(<scope>): upgrade <dep> from X.Y to X.Z`.
 

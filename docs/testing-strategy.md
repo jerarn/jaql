@@ -282,14 +282,12 @@ The full test suite runs on every push to every branch:
 
 | Platform       | Compiler   | Build Type | Sanitizers | Coverage |
 |----------------|------------|------------|------------|----------|
-| ubuntu-22.04   | GCC 13     | Debug      | —          | ✓        |
-| ubuntu-22.04   | GCC 13     | Release    | —          | —        |
-| ubuntu-22.04   | Clang 17   | Debug      | ASan+UBSan | —        |
-| ubuntu-22.04   | Clang 17   | Release    | —          | —        |
-| ubuntu-24.04   | GCC 13     | Debug      | —          | —        |
-| windows-latest | MSVC 2022  | Release    | —          | —        |
+| ubuntu-24.04   | GCC 13     | Debug      | —          | ✓        |
+| ubuntu-24.04   | GCC 13     | Release    | —          | —        |
+| ubuntu-24.04   | Clang 17   | Debug      | —          | —        |
+| ubuntu-24.04   | Clang 17   | Release    | —          | —        |
 
-Coverage is reported for the `ubuntu-22.04 / GCC 13 / Debug` configuration only.
+Coverage is reported for the `ubuntu-24.04 / GCC 13 / Debug` configuration only.
 The coverage target is ≥80% line coverage for all `core` and `math` public APIs.
 
 ---

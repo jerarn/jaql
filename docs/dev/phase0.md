@@ -32,27 +32,24 @@ The following foundation work is already done or started:
   GCC 13 configuration
 - Repository-level VS Code configuration is ready (`.vscode/settings.json`,
   `.vscode/extensions.json`, `.vscode/tasks.json`)
+- `.vscode/launch.json` is in place with an initial C++ debug profile and
+  `JAQL: Build` as pre-launch task
 - GitHub Actions CI: matrix job covering GCC 13 × {Debug, Release} and
   Clang 17 × {Debug, Release}; separate `lint` job (clang-format check + clang-tidy)
+- `docs/dev/` now contains focused guides for Linux setup, script/CI behavior,
+  and VS Code workflow
 - Documentation reconciliation is intentionally deferred until the end of Phase 0 so
   updates reflect the stabilized workflow
 
 ## Remaining Deliverables
 
-### 1. VS Code Configuration
+### Documentation Suite
 
-Base config is in place. Pending:
-
-- Add `.vscode/launch.json` if a real debug target is identified.
-
-### 3. Documentation Suite
-
-Deferred until end of Phase 0. Full pass required:
+In progress. Remaining pass required:
 
 - Reconcile `README.md`, `CONTRIBUTING.md`, and `docs/` with the actual repository state.
 - Remove or implement any referenced commands, scripts, or workflows.
-- Populate `docs/dev/` with focused guides for setup, scripts, CI behavior, and editor
-  workflow.
+- Expand or refine `docs/dev/` guides as workflows evolve.
 - Document how Doxygen is generated and where generated output belongs.
 
 Requirements:
@@ -63,8 +60,7 @@ Requirements:
 
 ## Next Focus Order
 
-1. Add `.vscode/launch.json` once a debug target exists.
-2. Execute the documentation reconciliation and expansion pass at end of Phase 0.
+1. Execute the documentation reconciliation and expansion pass at end of Phase 0.
 
 ## Success Criteria
 
