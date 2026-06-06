@@ -1,5 +1,3 @@
-# Add test executables here as sources become available:
-#
-#   add_executable(test_<module> test_something.cpp)
-#   target_link_libraries(test_<module> PRIVATE jaql::<module> GTest::gtest_main)
-#   gtest_discover_tests(test_<module>)
+add_executable(test_infra_logger test_logger.cpp)
+target_link_libraries(test_infra_logger PRIVATE jaql::infra GTest::gtest_main)
+gtest_discover_tests(test_infra_logger)
