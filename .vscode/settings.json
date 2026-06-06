@@ -31,11 +31,11 @@
     // clang-format's output.
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
-    // Exclude build and Conan cache artifacts from the file explorer and search.
-    "files.exclude": {
-        "**/build/**": true,
-        "**/.conan2/**": true
-    },
+    // // Exclude build and Conan cache artifacts from the file explorer and search.
+    // "files.exclude": {
+    //     "**/build/**": true,
+    //     "**/.conan2/**": true
+    // },
     "search.exclude": {
         "**/build/**": true,
         "**/.conan2/**": true
