@@ -83,6 +83,20 @@
                 "$gcc"
             ],
             "detail": "Run clang-tidy against tracked translation units using the default preset build directory."
+        },
+        {
+            "label": "JAQL: Docs",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-lc",
+                "${workspaceFolder}/scripts/bootstrap.sh --docs && cmake --build --preset gcc-debug --target doxygen"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "detail": "Install docs dependencies via bootstrap --docs, then build the doxygen target."
         }
     ]
 }

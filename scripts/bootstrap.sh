@@ -7,7 +7,7 @@ source "${script_dir}/common.sh"
 
 usage() {
     cat <<'EOF'
-Usage: ./scripts/bootstrap.sh [--preset <preset>] [--host-profile <profile>] [--build-profile <profile>]
+Usage: ./scripts/bootstrap.sh [--preset <preset>] [--host-profile <profile>] [--build-profile <profile>] [--docs]
 
 Installs Conan dependencies into the matching preset build directory and configures CMake.
 Defaults: preset=gcc-debug, host-profile=default, build-profile=default.
@@ -17,6 +17,7 @@ EOF
 preset="$(jaql_default_preset)"
 host_profile="${JAQL_CONAN_HOST_PROFILE:-default}"
 build_profile="${JAQL_CONAN_BUILD_PROFILE:-default}"
+build_docs=false
 
 while (($# > 0)); do
     case "$1" in
@@ -34,6 +35,10 @@ while (($# > 0)); do
             (($# >= 2)) || jaql_die "--build-profile requires a value."
             build_profile="$2"
             shift 2
+            ;;
+        --docs)
+            build_docs=true
+            shift
             ;;
         --help|-h)
             usage
@@ -67,12 +72,20 @@ fi
 printf 'Installing Conan dependencies into %s\n' "${build_dir}"
 (
     cd -- "${repo_root}"
-    conan install . \
-        --output-folder "${build_dir}" \
-        --build=missing \
-        -pr:h "${host_profile}" \
-        -pr:b "${build_profile}" \
+    conan_install_args=(
+        install .
+        --output-folder "${build_dir}"
+        --build=missing
+        -pr:h "${host_profile}"
+        -pr:b "${build_profile}"
         -s build_type="${build_type}"
+    )
+
+    if [[ "${build_docs}" == true ]]; then
+        conan_install_args+=( -o "jaql/*:build_docs=True" )
+    fi
+
+    conan "${conan_install_args[@]}"
 )
 
 printf 'Configuring CMake preset %s\n' "${preset}"
