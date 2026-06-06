@@ -52,9 +52,9 @@ jobs:
             conan_build_type: Debug
             conan_compiler: clang
             conan_compiler_version: "17"
-            conan_libcxx: libstdc++11
+            conan_libcxx: libc++
             cmake_preset: ci-clang-debug
-            apt_packages: cmake ninja-build clang-17
+            apt_packages: cmake ninja-build clang-17 libc++-17-dev libc++abi-17-dev
             coverage: false
 
           - name: "Clang 17 / Release"
@@ -64,9 +64,9 @@ jobs:
             conan_build_type: Release
             conan_compiler: clang
             conan_compiler_version: "17"
-            conan_libcxx: libstdc++11
+            conan_libcxx: libc++
             cmake_preset: ci-clang-release
-            apt_packages: cmake ninja-build clang-17
+            apt_packages: cmake ninja-build clang-17 libc++-17-dev libc++abi-17-dev
             coverage: false
 
     env:
