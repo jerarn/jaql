@@ -107,7 +107,7 @@ jaql_ensure_conan_profile() {
         return 0
     fi
     if [[ "${profile_name}" == "clang-local" ]]; then
-        printf 'Conan profile \'clang-local\' not found. Creating it now.\n'
+        printf 'Conan profile '\''clang-local'\'' not found. Creating it now.\n'
         local clang_bin
         clang_bin="$(jaql_find_first clang-17 clang-18 clang || true)"
         [[ -n "${clang_bin}" ]] || jaql_die "clang not found. Install clang (or clang-17) and ensure it is on PATH."
@@ -125,7 +125,7 @@ jaql_ensure_conan_profile() {
             printf 'compiler.version=%s\n' "${clang_version}"
             printf 'os=Linux\n'
         } > "${HOME}/.conan2/profiles/clang-local"
-        printf 'Created Conan profile \'clang-local\' (clang %s, libstdc++11).\n' "${clang_version}"
+        printf 'Created Conan profile '\''clang-local'\'' (clang %s, libstdc++11).\n' "${clang_version}"
         return 0
     fi
     jaql_die "Conan profile '${profile_name}' was not found. Create it with Conan or pass a different profile."
