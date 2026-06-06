@@ -53,5 +53,7 @@ clang_tidy_bin="$(jaql_find_first clang-tidy-17 clang-tidy || true)"
 printf 'Running %s with compile database %s\n' "${clang_tidy_bin}" "${build_dir}/compile_commands.json"
 (
     cd -- "${repo_root}"
-    "${clang_tidy_bin}" -p "${build_dir}" "${extra_args[@]}" "${files[@]}"
+    "${clang_tidy_bin}" -p "${build_dir}" \
+        --header-filter="^${repo_root}/(include|src)/.*" \
+        "${extra_args[@]}" "${files[@]}"
 )

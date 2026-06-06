@@ -16,7 +16,8 @@ Checks: >
 WarningsAsErrors: "*"
 
 # Only diagnose JAQL's own headers; suppress noise from Conan deps and system headers.
-HeaderFilterRegex: "include/jaql/.*"
+# The script/lint.sh passes an absolute-path override of this regex at runtime.
+HeaderFilterRegex: ".*(include/jaql|src)/.*"
 
 # Enforce JAQL naming conventions (docs/coding-standards.md § Naming Conventions).
 CheckOptions:

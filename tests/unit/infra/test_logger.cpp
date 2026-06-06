@@ -11,12 +11,14 @@ namespace {
 
 // RAII guard: drops a named logger from the spdlog registry on scope exit.
 struct LoggerGuard {
-  explicit LoggerGuard(std::string name) : name_(std::move(name)) {}
-  ~LoggerGuard() { spdlog::drop(name_); }
+  explicit LoggerGuard(std::string logger_name) : name(std::move(logger_name)) {}
+  ~LoggerGuard() { spdlog::drop(name); }
   LoggerGuard(const LoggerGuard&) = delete;
-  LoggerGuard& operator=(const LoggerGuard&) = delete;
+  auto operator=(const LoggerGuard&) -> LoggerGuard& = delete;
+  LoggerGuard(LoggerGuard&&) = delete;
+  auto operator=(LoggerGuard&&) -> LoggerGuard& = delete;
 
-  std::string name_;
+  std::string name;
 };
 
 }  // namespace
@@ -27,10 +29,10 @@ TEST(Logger, GetLogger_SameName_ReturnsSamePointer) {
   constexpr std::string_view name = "test_same_ptr";
   LoggerGuard guard{std::string(name)};
 
-  auto a = jaql::infra::get_logger(name);
-  auto b = jaql::infra::get_logger(name);
+  auto logger_a = jaql::infra::get_logger(name);
+  auto logger_b = jaql::infra::get_logger(name);
 
-  EXPECT_EQ(a.get(), b.get());
+  EXPECT_EQ(logger_a.get(), logger_b.get());
 }
 
 // ---- configure_logging: level filtering ---------------------------------------

@@ -38,7 +38,7 @@ auto get_logger(std::string_view name) -> std::shared_ptr<spdlog::logger> {
   }
 
   auto& config = global_config();
-  std::lock_guard lock(config.mutex);
+  std::scoped_lock lock(config.mutex);
 
   // Double-checked locking: re-check after acquiring the lock.
   if (auto existing = spdlog::get(name_str)) {
@@ -54,7 +54,7 @@ auto get_logger(std::string_view name) -> std::shared_ptr<spdlog::logger> {
 
 void configure_logging(spdlog::level::level_enum level, std::shared_ptr<spdlog::sinks::sink> sink) {
   auto& config = global_config();
-  std::lock_guard lock(config.mutex);
+  std::scoped_lock lock(config.mutex);
   config.level = level;
   if (sink) {
     config.sink = std::move(sink);
