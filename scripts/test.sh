@@ -10,7 +10,7 @@ usage() {
 Usage: ./scripts/test.sh [--preset <preset>] [-- <ctest-args...>]
 
 Runs ctest with the selected preset and failure output enabled.
-Defaults: preset=jaql-debug.
+Defaults: preset=gcc-debug.
 EOF
 }
 

@@ -14,8 +14,8 @@
             "toolchainFile": "${sourceDir}/build/${presetName}/conan_toolchain.cmake"
         },
         {
-            "name": "jaql-debug",
-            "displayName": "Debug (ASan + UBSan)",
+            "name": "gcc-debug",
+            "displayName": "GCC Debug (ASan + UBSan)",
             "inherits": "base",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
@@ -26,8 +26,8 @@
             }
         },
         {
-            "name": "jaql-release",
-            "displayName": "Release",
+            "name": "gcc-release",
+            "displayName": "GCC Release",
             "inherits": "base",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
@@ -36,14 +36,69 @@
             }
         },
         {
-            "name": "ci-linux",
-            "displayName": "CI Linux (coverage + Werror)",
+            "name": "clang-debug",
+            "displayName": "Clang Debug (ASan + UBSan)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_BUILD_BENCHMARKS": "OFF",
+                "JAQL_ENABLE_ASAN": "ON",
+                "JAQL_ENABLE_UBSAN": "ON"
+            }
+        },
+        {
+            "name": "clang-release",
+            "displayName": "Clang Release",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_BUILD_BENCHMARKS": "OFF"
+            }
+        },
+        {
+            "name": "ci-gcc-debug",
+            "displayName": "CI GCC Debug (coverage + Werror)",
             "inherits": "base",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "JAQL_BUILD_TESTS": "ON",
                 "JAQL_BUILD_BENCHMARKS": "OFF",
                 "JAQL_ENABLE_COVERAGE": "ON",
+                "JAQL_WARNINGS_AS_ERRORS": "ON"
+            }
+        },
+        {
+            "name": "ci-clang-debug",
+            "displayName": "CI Clang Debug (Werror)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_BUILD_BENCHMARKS": "OFF",
+                "JAQL_WARNINGS_AS_ERRORS": "ON"
+            }
+        },
+        {
+            "name": "ci-gcc-release",
+            "displayName": "CI GCC Release (Werror)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_BUILD_BENCHMARKS": "OFF",
+                "JAQL_WARNINGS_AS_ERRORS": "ON"
+            }
+        },
+        {
+            "name": "ci-clang-release",
+            "displayName": "CI Clang Release (Werror)",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "JAQL_BUILD_TESTS": "ON",
+                "JAQL_BUILD_BENCHMARKS": "OFF",
                 "JAQL_WARNINGS_AS_ERRORS": "ON"
             }
         },
@@ -91,16 +146,36 @@
     ],
     "buildPresets": [
         {
-            "name": "jaql-debug",
-            "configurePreset": "jaql-debug"
+            "name": "gcc-debug",
+            "configurePreset": "gcc-debug"
         },
         {
-            "name": "jaql-release",
-            "configurePreset": "jaql-release"
+            "name": "gcc-release",
+            "configurePreset": "gcc-release"
         },
         {
-            "name": "ci-linux",
-            "configurePreset": "ci-linux"
+            "name": "clang-debug",
+            "configurePreset": "clang-debug"
+        },
+        {
+            "name": "clang-release",
+            "configurePreset": "clang-release"
+        },
+        {
+            "name": "ci-gcc-debug",
+            "configurePreset": "ci-gcc-debug"
+        },
+        {
+            "name": "ci-clang-debug",
+            "configurePreset": "ci-clang-debug"
+        },
+        {
+            "name": "ci-gcc-release",
+            "configurePreset": "ci-gcc-release"
+        },
+        {
+            "name": "ci-clang-release",
+            "configurePreset": "ci-clang-release"
         },
         {
             "name": "asan",
@@ -121,22 +196,57 @@
     ],
     "testPresets": [
         {
-            "name": "jaql-debug",
-            "configurePreset": "jaql-debug",
+            "name": "gcc-debug",
+            "configurePreset": "gcc-debug",
             "output": {
                 "outputOnFailure": true
             }
         },
         {
-            "name": "jaql-release",
-            "configurePreset": "jaql-release",
+            "name": "gcc-release",
+            "configurePreset": "gcc-release",
             "output": {
                 "outputOnFailure": true
             }
         },
         {
-            "name": "ci-linux",
-            "configurePreset": "ci-linux",
+            "name": "clang-debug",
+            "configurePreset": "clang-debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "clang-release",
+            "configurePreset": "clang-release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "ci-gcc-debug",
+            "configurePreset": "ci-gcc-debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "ci-clang-debug",
+            "configurePreset": "ci-clang-debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "ci-gcc-release",
+            "configurePreset": "ci-gcc-release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "ci-clang-release",
+            "configurePreset": "ci-clang-release",
             "output": {
                 "outputOnFailure": true
             }
@@ -165,19 +275,19 @@
     ],
     "workflowPresets": [
         {
-            "name": "jaql-debug",
+            "name": "gcc-debug",
             "steps": [
                 {
                     "type": "configure",
-                    "name": "jaql-debug"
+                    "name": "gcc-debug"
                 },
                 {
                     "type": "build",
-                    "name": "jaql-debug"
+                    "name": "gcc-debug"
                 },
                 {
                     "type": "test",
-                    "name": "jaql-debug"
+                    "name": "gcc-debug"
                 }
             ]
         }

@@ -10,7 +10,7 @@ usage() {
 Usage: ./scripts/bootstrap.sh [--preset <preset>] [--host-profile <profile>] [--build-profile <profile>]
 
 Installs Conan dependencies into the matching preset build directory and configures CMake.
-Defaults: preset=jaql-debug, host-profile=default, build-profile=default.
+Defaults: preset=gcc-debug, host-profile=default, build-profile=default.
 EOF
 }
 

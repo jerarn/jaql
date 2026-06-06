@@ -213,7 +213,7 @@ After all headers in `infra` and `core` are finalised.
 
 Phase 1 is complete when all of the following are true:
 
-1. `cmake --build --preset jaql-debug` compiles all `infra` and `core` sources without
+1. `cmake --build --preset gcc-debug` compiles all `infra` and `core` sources without
    warnings.
 2. `./scripts/test.sh` reports all tests passing with line coverage ≥ 95 % across every
    public header in `infra` and `core`.

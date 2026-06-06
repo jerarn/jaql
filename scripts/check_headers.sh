@@ -10,7 +10,7 @@ usage() {
 Usage: ./scripts/check_headers.sh [--preset <preset>]
 
 Builds one standalone translation unit per public header using the preset Conan toolchain.
-Defaults: preset=jaql-debug.
+Defaults: preset=gcc-debug.
 EOF
 }
 

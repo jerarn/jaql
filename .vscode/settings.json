@@ -1,10 +1,10 @@
 {
     // clangd language server — point at the default preset build directory.
-    // `scripts/bootstrap.sh` and `cmake --preset jaql-debug` configure that tree,
+    // `scripts/bootstrap.sh` and `cmake --preset gcc-debug` configure that tree,
     // and compile_commands.json is written there once CMake has translation units
     // to emit into the compilation database.
     "clangd.arguments": [
-        "--compile-commands-dir=${workspaceFolder}/build/jaql-debug",
+        "--compile-commands-dir=${workspaceFolder}/build/gcc-debug",
         "--clang-tidy",
         "--header-insertion=never",
         "--completion-style=detailed",

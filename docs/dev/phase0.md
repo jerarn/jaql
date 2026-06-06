@@ -32,19 +32,14 @@ The following foundation work is already done or started:
   GCC 13 configuration
 - Repository-level VS Code configuration is ready (`.vscode/settings.json`,
   `.vscode/extensions.json`, `.vscode/tasks.json`)
+- GitHub Actions CI: matrix job covering GCC 13 × {Debug, Release} and
+  Clang 17 × {Debug, Release}; separate `lint` job (clang-format check + clang-tidy)
 - Documentation reconciliation is intentionally deferred until the end of Phase 0 so
   updates reflect the stabilized workflow
 
 ## Remaining Deliverables
 
-### 1. GitHub Actions
-
-Baseline is in place. Pending once stable:
-
-- Add a separate formatting or lint job.
-- Add a second Linux compiler job to validate both GCC and Clang.
-
-### 2. VS Code Configuration
+### 1. VS Code Configuration
 
 Base config is in place. Pending:
 
@@ -68,9 +63,8 @@ Requirements:
 
 ## Next Focus Order
 
-1. Extend GitHub Actions with a lint/format job and a second compiler configuration.
-2. Add `.vscode/launch.json` once a debug target exists.
-3. Execute the documentation reconciliation and expansion pass at end of Phase 0.
+1. Add `.vscode/launch.json` once a debug target exists.
+2. Execute the documentation reconciliation and expansion pass at end of Phase 0.
 
 ## Success Criteria
 

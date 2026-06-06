@@ -128,7 +128,7 @@ mechanism for include hygiene.
 ### Cycle Detection
 
 CMake will produce a configure error if a dependency cycle is introduced. Additionally,
-the CI `ci-linux` preset runs with CMake's `--graphviz` export to generate a dependency
+the CI `ci-gcc-debug` preset runs with CMake's `--graphviz` export to generate a dependency
 graph that is checked against the reference diagram above.
 
 ---

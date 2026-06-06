@@ -11,16 +11,67 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  CC: gcc-13
-  CXX: g++-13
-  CI_CONAN_PROFILE: ci-gcc13
-
 jobs:
-  linux-gcc13:
-    name: Linux GCC 13
+  linux-matrix:
+    name: Linux ${{ matrix.name }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "GCC 13 / Debug"
+            cc: gcc-13
+            cxx: g++-13
+            conan_profile: ci-gcc13-debug
+            conan_build_type: Debug
+            conan_compiler: gcc
+            conan_compiler_version: "13"
+            conan_libcxx: libstdc++11
+            cmake_preset: ci-gcc-debug
+            apt_packages: cmake ninja-build gcc-13 g++-13 lcov
+            coverage: true
+
+          - name: "GCC 13 / Release"
+            cc: gcc-13
+            cxx: g++-13
+            conan_profile: ci-gcc13-release
+            conan_build_type: Release
+            conan_compiler: gcc
+            conan_compiler_version: "13"
+            conan_libcxx: libstdc++11
+            cmake_preset: ci-gcc-release
+            apt_packages: cmake ninja-build gcc-13 g++-13
+            coverage: false
+
+          - name: "Clang 17 / Debug"
+            cc: clang-17
+            cxx: clang++-17
+            conan_profile: ci-clang17-debug
+            conan_build_type: Debug
+            conan_compiler: clang
+            conan_compiler_version: "17"
+            conan_libcxx: libstdc++11
+            cmake_preset: ci-clang-debug
+            apt_packages: cmake ninja-build clang-17
+            coverage: false
+
+          - name: "Clang 17 / Release"
+            cc: clang-17
+            cxx: clang++-17
+            conan_profile: ci-clang17-release
+            conan_build_type: Release
+            conan_compiler: clang
+            conan_compiler_version: "17"
+            conan_libcxx: libstdc++11
+            cmake_preset: ci-clang-release
+            apt_packages: cmake ninja-build clang-17
+            coverage: false
+
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
 
     steps:
       - name: Check out repository
@@ -34,15 +85,105 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt-get update
-          sudo apt-get install --yes cmake ninja-build gcc-13 g++-13 lcov
+          sudo apt-get install --yes ${{ matrix.apt_packages }}
 
       - name: Restore Conan cache
         uses: actions/cache@v4
         with:
           path: ~/.conan2
-          key: ${{ runner.os }}-gcc13-conan-${{ hashFiles('conanfile.py') }}
+          key: ${{ runner.os }}-${{ matrix.conan_profile }}-conan-${{ hashFiles('conanfile.py') }}
           restore-keys: |
-            ${{ runner.os }}-gcc13-conan-
+            ${{ runner.os }}-${{ matrix.conan_profile }}-conan-
+
+      - name: Install Conan
+        run: python -m pip install --upgrade pip conan
+
+      - name: Create Conan profile
+        env:
+          CONAN_PROFILE: ${{ matrix.conan_profile }}
+          CONAN_BUILD_TYPE: ${{ matrix.conan_build_type }}
+          CONAN_COMPILER: ${{ matrix.conan_compiler }}
+          CONAN_COMPILER_VERSION: ${{ matrix.conan_compiler_version }}
+          CONAN_LIBCXX: ${{ matrix.conan_libcxx }}
+        run: |
+          mkdir -p "$HOME/.conan2/profiles"
+          cat > "$HOME/.conan2/profiles/${CONAN_PROFILE}" <<EOF
+          [settings]
+          arch=x86_64
+          build_type=${CONAN_BUILD_TYPE}
+          compiler=${CONAN_COMPILER}
+          compiler.cppstd=23
+          compiler.libcxx=${CONAN_LIBCXX}
+          compiler.version=${CONAN_COMPILER_VERSION}
+          os=Linux
+          EOF
+
+      - name: Bootstrap
+        run: >
+          ./scripts/bootstrap.sh
+          --preset ${{ matrix.cmake_preset }}
+          --host-profile ${{ matrix.conan_profile }}
+          --build-profile ${{ matrix.conan_profile }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.cmake_preset }} --parallel
+
+      - name: Test
+        run: ./scripts/test.sh --preset ${{ matrix.cmake_preset }}
+
+      - name: Detect coverage data
+        id: coverage-data
+        if: matrix.coverage
+        run: |
+          if find build/${{ matrix.cmake_preset }} -name '*.gcda' -print -quit | grep -q .; then
+            echo 'found=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'found=false' >> "$GITHUB_OUTPUT"
+            echo 'No .gcda files were produced; skipping coverage artifact generation.'
+          fi
+
+      - name: Generate coverage report
+        if: matrix.coverage && steps.coverage-data.outputs.found == 'true'
+        run: cmake --build --preset ${{ matrix.cmake_preset }} --target coverage
+
+      - name: Upload coverage artifact
+        if: matrix.coverage && steps.coverage-data.outputs.found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-linux-gcc13-debug
+          path: build/${{ matrix.cmake_preset }}/coverage
+          if-no-files-found: error
+
+  lint:
+    name: Lint (format + clang-tidy)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    env:
+      CC: gcc-13
+      CXX: g++-13
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes cmake ninja-build gcc-13 g++-13 clang-format-17 clang-tidy-17
+
+      - name: Restore Conan cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan2
+          key: ${{ runner.os }}-ci-gcc13-conan-${{ hashFiles('conanfile.py') }}
+          restore-keys: |
+            ${{ runner.os }}-ci-gcc13-conan-
 
       - name: Install Conan
         run: python -m pip install --upgrade pip conan
@@ -50,7 +191,7 @@ jobs:
       - name: Create Conan profile
         run: |
           mkdir -p "$HOME/.conan2/profiles"
-          cat > "$HOME/.conan2/profiles/${CI_CONAN_PROFILE}" <<'EOF'
+          cat > "$HOME/.conan2/profiles/ci-gcc13" <<'EOF'
           [settings]
           arch=x86_64
           build_type=Debug
@@ -61,33 +202,16 @@ jobs:
           os=Linux
           EOF
 
-      - name: Bootstrap ci-linux preset
-        run: ./scripts/bootstrap.sh --preset ci-linux --host-profile "${CI_CONAN_PROFILE}" --build-profile "${CI_CONAN_PROFILE}"
+      - name: Bootstrap (configure only)
+        run: >
+          ./scripts/bootstrap.sh
+          --preset ci-gcc-debug
+          --host-profile ci-gcc13
+          --build-profile ci-gcc13
 
-      - name: Build
-        run: cmake --build --preset ci-linux --parallel
+      - name: Check formatting
+        run: ./scripts/format.sh --check
 
-      - name: Test
-        run: ./scripts/test.sh --preset ci-linux
+      - name: Run clang-tidy
+        run: ./scripts/lint.sh --preset ci-gcc-debug
 
-      - name: Detect coverage data
-        id: coverage-data
-        run: |
-          if find build/ci-linux -name '*.gcda' -print -quit | grep -q .; then
-            echo 'found=true' >> "$GITHUB_OUTPUT"
-          else
-            echo 'found=false' >> "$GITHUB_OUTPUT"
-            echo 'No .gcda files were produced; skipping coverage artifact generation.'
-          fi
-
-      - name: Generate coverage report
-        if: steps.coverage-data.outputs.found == 'true'
-        run: cmake --build --preset ci-linux --target coverage
-
-      - name: Upload coverage artifact
-        if: steps.coverage-data.outputs.found == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-linux-gcc13
-          path: build/ci-linux/coverage
-          if-no-files-found: error

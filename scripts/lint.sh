@@ -10,7 +10,7 @@ usage() {
 Usage: ./scripts/lint.sh [--preset <preset>] [-- <clang-tidy-args...>]
 
 Runs clang-tidy against tracked .cpp translation units using the preset build directory.
-Defaults: preset=jaql-debug.
+Defaults: preset=gcc-debug.
 EOF
 }
 

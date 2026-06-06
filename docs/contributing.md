@@ -31,15 +31,15 @@ cd jaql
 pip install conan
 conan profile detect
 
-# 3. Run the bootstrap script (installs deps, configures jaql-debug)
+# 3. Run the bootstrap script (installs deps, configures gcc-debug)
 ./scripts/bootstrap.sh
 
 # 4. Build and test
-cmake --build --preset jaql-debug
-ctest --preset jaql-debug --output-on-failure
+cmake --build --preset gcc-debug
+ctest --preset gcc-debug --output-on-failure
 
 # 5. Create a symlink to compile_commands.json (for clangd/IDE)
-ln -sf build/jaql-debug/compile_commands.json compile_commands.json
+ln -sf build/gcc-debug/compile_commands.json compile_commands.json
 ```
 
 ### Verifying the Setup
@@ -190,7 +190,7 @@ The project is pre-1.0.0. MINOR bumps may contain breaking changes during this p
 
 1. Check the upstream changelog for breaking changes.
 2. Bump the version in `conanfile.py`.
-3. Run the full test suite: `ctest --preset ci-linux`.
+3. Run the full test suite: `ctest --preset ci-gcc-debug`.
 4. Update the version in [docs/tech-stack.md](tech-stack.md).
 5. Commit: `chore(<scope>): upgrade <dep> from X.Y to X.Z`.
 

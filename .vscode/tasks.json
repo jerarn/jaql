@@ -9,7 +9,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [],
-            "detail": "Install Conan dependencies and configure the default jaql-debug preset."
+            "detail": "Install Conan dependencies and configure the default gcc-debug preset."
         },
         {
             "label": "JAQL: Configure",
@@ -17,7 +17,7 @@
             "command": "cmake",
             "args": [
                 "--preset",
-                "jaql-debug"
+                "gcc-debug"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -25,7 +25,7 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "detail": "Re-run CMake configure for the default jaql-debug preset."
+            "detail": "Re-run CMake configure for the default gcc-debug preset."
         },
         {
             "label": "JAQL: Build",
@@ -34,7 +34,7 @@
             "args": [
                 "--build",
                 "--preset",
-                "jaql-debug"
+                "gcc-debug"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -46,7 +46,7 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "detail": "Build the default jaql-debug preset."
+            "detail": "Build the default gcc-debug preset."
         },
         {
             "label": "JAQL: Test",

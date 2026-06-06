@@ -83,25 +83,25 @@ cd jaql
 conan install . --build=missing -pr:b=default -pr:h=default
 
 # Configure — debug build with AddressSanitizer + UndefinedBehaviorSanitizer
-cmake --preset jaql-debug
+cmake --preset gcc-debug
 
 # Build
-cmake --build --preset jaql-debug
+cmake --build --preset gcc-debug
 
 # Run tests
-ctest --preset jaql-debug --output-on-failure
+ctest --preset gcc-debug --output-on-failure
 
 # Run the example
-./build/jaql-debug/examples/hello_jaql/hello_jaql
+./build/gcc-debug/examples/hello_jaql/hello_jaql
 ```
 
 ### Build Presets Reference
 
 | Preset          | Purpose                           | Sanitizers   | Tests | Benchmarks |
 |-----------------|-----------------------------------|--------------|-------|------------|
-| `jaql-debug`    | Daily development                 | ASan + UBSan | ✓     | —          |
-| `jaql-release`  | Optimized development             | —            | ✓     | —          |
-| `ci-linux`      | CI pipeline (coverage + -Werror)  | —            | ✓     | —          |
+| `gcc-debug`    | Daily development                 | ASan + UBSan | ✓     | —          |
+| `gcc-release`  | Optimized development             | —            | ✓     | —          |
+| `ci-gcc-debug`      | CI pipeline (coverage + -Werror)  | —            | ✓     | —          |
 | `asan`          | Memory safety validation          | ASan         | ✓     | —          |
 | `ubsan`         | Undefined behaviour detection     | UBSan        | ✓     | —          |
 | `tsan`          | Thread safety validation          | TSan         | ✓     | —          |

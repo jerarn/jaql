@@ -93,7 +93,7 @@ cmake --preset <preset-name>
 cmake --build --preset <preset-name>
 
 # With parallelism
-cmake --build --preset jaql-debug -- -j$(nproc)
+cmake --build --preset gcc-debug -- -j$(nproc)
 ```
 
 ### Test
@@ -106,9 +106,9 @@ ctest --preset <preset-name> --output-on-failure
 
 | Preset        | Build Type | Sanitizers      | Tests | Benchmarks | Extra Flags          |
 |---------------|------------|-----------------|-------|------------|----------------------|
-| `jaql-debug`   | Debug      | ASan + UBSan    | ON    | OFF        | Full debug info      |
-| `jaql-release` | Release    | —               | ON    | OFF        | -O2, NDEBUG          |
-| `ci-linux`    | Debug      | —               | ON    | OFF        | Coverage, -Werror    |
+| `gcc-debug`   | Debug      | ASan + UBSan    | ON    | OFF        | Full debug info      |
+| `gcc-release` | Release    | —               | ON    | OFF        | -O2, NDEBUG          |
+| `ci-gcc-debug`    | Debug      | —               | ON    | OFF        | Coverage, -Werror    |
 | `asan`        | Debug      | ASan            | ON    | OFF        |                      |
 | `ubsan`       | Debug      | UBSan           | ON    | OFF        |                      |
 | `tsan`        | Debug      | TSan            | ON    | OFF        | Incompatible with ASan |
@@ -120,11 +120,11 @@ Each preset writes to its own subdirectory of `build/`:
 
 ```
 build/
-├── jaql-debug/
+├── gcc-debug/
 │   ├── compile_commands.json    # used by clangd
 │   └── ...
-├── jaql-release/
-├── ci-linux/
+├── gcc-release/
+├── ci-gcc-debug/
 └── benchmark/
 ```
 
@@ -205,16 +205,16 @@ With `JAQL_WARNINGS_AS_ERRORS=ON` (used in CI): `-Werror` / `/WX` is added.
 
 ## Coverage Report
 
-Run the `ci-linux` preset and then generate a coverage report:
+Run the `ci-gcc-debug` preset and then generate a coverage report:
 
 ```bash
-cmake --preset ci-linux
-cmake --build --preset ci-linux
-ctest --preset ci-linux
-cmake --build --preset ci-linux --target coverage
+cmake --preset ci-gcc-debug
+cmake --build --preset ci-gcc-debug
+ctest --preset ci-gcc-debug
+cmake --build --preset ci-gcc-debug --target coverage
 ```
 
-The HTML coverage report is written to `build/ci-linux/coverage/index.html`.
+The HTML coverage report is written to `build/ci-gcc-debug/coverage/index.html`.
 
 ---
 
@@ -225,9 +225,9 @@ The HTML coverage report is written to `build/ci-linux/coverage/index.html`.
 1. Install the [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
    extension.
 2. Open the repository folder. CMake Tools will detect `CMakePresets.json` automatically.
-3. Select the `jaql-debug` preset from the status bar.
+3. Select the `gcc-debug` preset from the status bar.
 4. Install [clangd](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd).
-   It uses `build/jaql-debug/compile_commands.json` automatically.
+   It uses `build/gcc-debug/compile_commands.json` automatically.
 
 See `.vscode/settings.json` for the pre-configured workspace settings.
 
@@ -235,7 +235,7 @@ See `.vscode/settings.json` for the pre-configured workspace settings.
 
 1. Open the repository folder. CLion detects `CMakePresets.json` automatically
    (CLion 2023.2+).
-2. Select `jaql-debug` as the active configuration.
+2. Select `gcc-debug` as the active configuration.
 3. Conan integration: install the [Conan plugin](https://plugins.jetbrains.com/plugin/11956-conan)
    or run `conan install .` before configuring — _once Conan integration is active_.
 
@@ -246,7 +246,7 @@ This file is required by clangd, `clang-tidy`, and include-what-you-use. A symli
 the repository root can be created for convenience:
 
 ```bash
-ln -sf build/jaql-debug/compile_commands.json compile_commands.json
+ln -sf build/gcc-debug/compile_commands.json compile_commands.json
 ```
 
 ---
@@ -258,7 +258,7 @@ The GitHub Actions CI pipeline is defined in `.github/workflows/ci.yml`. It:
 1. Checks out the repository.
 2. Installs Conan 2 via `pip` and detects the default profile.
 3. Runs `conan install . --build=missing`.
-4. Configures CMake with the `ci-linux` preset.
+4. Configures CMake with the `ci-gcc-debug` preset.
 5. Builds all targets.
 6. Runs `ctest --output-on-failure`.
 7. (On the GCC 13 Debug runner) uploads a coverage report to the CI artifacts.
