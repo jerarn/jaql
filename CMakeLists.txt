@@ -95,6 +95,7 @@ if(JAQL_ENABLE_COVERAGE)
                     --exclude "*/build/*"
                     --exclude "*/tests/*"
                     --exclude "/usr/*"
+                    --ignore-errors unused
             COMMAND ${GENHTML_EXE}
                     coverage.info
                     --output-directory coverage/
