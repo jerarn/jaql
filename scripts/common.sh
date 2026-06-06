@@ -34,11 +34,11 @@ jaql_preset_build_type() {
         gcc-debug|clang-debug|asan|ubsan|tsan|ci-gcc-debug|ci-clang-debug)
             printf 'Debug\n'
             ;;
-        gcc-release|clang-release|benchmark|ci-gcc-release)
+        gcc-release|clang-release|benchmark|ci-gcc-release|ci-clang-release)
             printf 'Release\n'
             ;;
         *)
-            jaql_die "unsupported preset '${preset}'. Use one of: gcc-debug, gcc-release, clang-debug, clang-release, ci-gcc-debug, ci-clang-debug, ci-gcc-release, asan, ubsan, tsan, benchmark."
+            jaql_die "unsupported preset '${preset}'. Use one of: gcc-debug, gcc-release, clang-debug, clang-release, ci-gcc-debug, ci-clang-debug, ci-gcc-release, ci-clang-release, asan, ubsan, tsan, benchmark."
             ;;
     esac
 }
