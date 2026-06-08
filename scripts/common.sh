@@ -89,6 +89,20 @@ jaql_require_command() {
     fi
 }
 
+# Finds the first available command.
+jaql_find_first() {
+    local candidate
+
+    for candidate in "$@"; do
+        if command -v "${candidate}" >/dev/null 2>&1; then
+            printf '%s\n' "${candidate}"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 # Checks that the build directory exists.
 jaql_require_build_dir() {
     local preset="$1"
