@@ -10,13 +10,13 @@ usage() {
 Usage: ./scripts/bootstrap.sh [--preset <preset>] [--host-profile <profile>] [--build-profile <profile>] [--docs]
 
 Installs Conan dependencies into the matching preset build directory and configures CMake.
-Defaults: preset=gcc-debug, host-profile=default, build-profile=default.
+Defaults: preset=gcc-debug; host/build profiles are chosen from the preset unless overridden.
 EOF
 }
 
 preset="$(jaql_default_preset)"
-host_profile="${JAQL_CONAN_HOST_PROFILE:-default}"
-build_profile="${JAQL_CONAN_BUILD_PROFILE:-default}"
+host_profile=""
+build_profile=""
 build_docs=false
 
 while (($# > 0)); do
@@ -50,17 +50,29 @@ while (($# > 0)); do
     esac
 done
 
+if [[ -z "${host_profile}" ]]; then
+    host_profile="${JAQL_CONAN_HOST_PROFILE:-$(jaql_preset_host_profile "${preset}")}"
+fi
+if [[ -z "${build_profile}" ]]; then
+    build_profile="${JAQL_CONAN_BUILD_PROFILE:-${host_profile}}"
+fi
+
 repo_root="$(jaql_repo_root)"
 build_dir="$(jaql_build_dir "${preset}")"
 build_type="$(jaql_preset_build_type "${preset}")"
 user_presets_file="${repo_root}/CMakeUserPresets.json"
+lockfile="${repo_root}/conan.lock"
+host_profile_resolved="$(jaql_resolve_conan_profile "${host_profile}")"
+build_profile_resolved="$(jaql_resolve_conan_profile "${build_profile}")"
 
 jaql_require_command cmake "Install CMake 3.25+ and ensure it is on PATH."
 jaql_require_command ninja "Install Ninja 1.11+ and ensure it is on PATH."
-jaql_require_command conan "Install Conan 2 and ensure it is on PATH."
+jaql_require_command conan "Install Conan 2.4+ and ensure it is on PATH."
 
 jaql_ensure_conan_profile "${host_profile}"
-jaql_ensure_conan_profile "${build_profile}"
+if [[ "${build_profile_resolved}" != "${host_profile_resolved}" ]]; then
+    jaql_ensure_conan_profile "${build_profile}"
+fi
 
 mkdir -p "${build_dir}"
 
@@ -76,10 +88,17 @@ printf 'Installing Conan dependencies into %s\n' "${build_dir}"
         install .
         --output-folder "${build_dir}"
         --build=missing
-        -pr:h "${host_profile}"
-        -pr:b "${build_profile}"
+        -pr:h "${host_profile_resolved}"
+        -pr:b "${build_profile_resolved}"
         -s build_type="${build_type}"
     )
+
+    if [[ -f "${lockfile}" ]]; then
+        conan_install_args+=( --lockfile "${lockfile}" --lockfile-partial )
+    fi
+
+    mapfile -t preset_conan_options < <(jaql_preset_conan_options "${preset}")
+    conan_install_args+=( "${preset_conan_options[@]}" )
 
     if [[ "${build_docs}" == true ]]; then
         conan_install_args+=( -o "jaql/*:build_docs=True" )

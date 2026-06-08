@@ -24,11 +24,7 @@ jobs:
           - name: "GCC 13 / Debug"
             cc: gcc-13
             cxx: g++-13
-            conan_profile: ci-gcc13-debug
-            conan_build_type: Debug
-            conan_compiler: gcc
-            conan_compiler_version: "13"
-            conan_libcxx: libstdc++11
+            conan_profile: profiles/ci/gcc13
             cmake_preset: ci-gcc-debug
             apt_packages: cmake ninja-build gcc-13 g++-13 lcov
             coverage: true
@@ -36,11 +32,7 @@ jobs:
           - name: "GCC 13 / Release"
             cc: gcc-13
             cxx: g++-13
-            conan_profile: ci-gcc13-release
-            conan_build_type: Release
-            conan_compiler: gcc
-            conan_compiler_version: "13"
-            conan_libcxx: libstdc++11
+            conan_profile: profiles/ci/gcc13
             cmake_preset: ci-gcc-release
             apt_packages: cmake ninja-build gcc-13 g++-13
             coverage: false
@@ -48,11 +40,7 @@ jobs:
           - name: "Clang 17 / Debug"
             cc: clang-17
             cxx: clang++-17
-            conan_profile: ci-clang17-debug
-            conan_build_type: Debug
-            conan_compiler: clang
-            conan_compiler_version: "17"
-            conan_libcxx: libc++
+            conan_profile: profiles/ci/clang17-libcxx
             cmake_preset: ci-clang-debug
             apt_packages: cmake ninja-build clang-17 libc++-17-dev libc++abi-17-dev
             coverage: false
@@ -60,11 +48,7 @@ jobs:
           - name: "Clang 17 / Release"
             cc: clang-17
             cxx: clang++-17
-            conan_profile: ci-clang17-release
-            conan_build_type: Release
-            conan_compiler: clang
-            conan_compiler_version: "17"
-            conan_libcxx: libc++
+            conan_profile: profiles/ci/clang17-libcxx
             cmake_preset: ci-clang-release
             apt_packages: cmake ninja-build clang-17 libc++-17-dev libc++abi-17-dev
             coverage: false
@@ -91,32 +75,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.conan2
-          key: ${{ runner.os }}-${{ matrix.conan_profile }}-conan-${{ hashFiles('conanfile.py') }}
+          key: ${{ runner.os }}-${{ matrix.conan_profile }}-conan-${{ hashFiles('conanfile.py', 'conan.lock') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.conan_profile }}-conan-
 
       - name: Install Conan
-        run: python -m pip install --upgrade pip conan
-
-      - name: Create Conan profile
-        env:
-          CONAN_PROFILE: ${{ matrix.conan_profile }}
-          CONAN_BUILD_TYPE: ${{ matrix.conan_build_type }}
-          CONAN_COMPILER: ${{ matrix.conan_compiler }}
-          CONAN_COMPILER_VERSION: ${{ matrix.conan_compiler_version }}
-          CONAN_LIBCXX: ${{ matrix.conan_libcxx }}
-        run: |
-          mkdir -p "$HOME/.conan2/profiles"
-          cat > "$HOME/.conan2/profiles/${CONAN_PROFILE}" <<EOF
-          [settings]
-          arch=x86_64
-          build_type=${CONAN_BUILD_TYPE}
-          compiler=${CONAN_COMPILER}
-          compiler.cppstd=23
-          compiler.libcxx=${CONAN_LIBCXX}
-          compiler.version=${CONAN_COMPILER_VERSION}
-          os=Linux
-          EOF
+        run: python -m pip install --upgrade pip 'conan>=2.4,<3'
 
       - name: Bootstrap
         run: >
@@ -181,37 +145,22 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.conan2
-          key: ${{ runner.os }}-ci-gcc13-conan-${{ hashFiles('conanfile.py') }}
+          key: ${{ runner.os }}-profiles-ci-gcc13-conan-${{ hashFiles('conanfile.py', 'conan.lock') }}
           restore-keys: |
-            ${{ runner.os }}-ci-gcc13-conan-
+            ${{ runner.os }}-profiles-ci-gcc13-conan-
 
       - name: Install Conan
-        run: python -m pip install --upgrade pip conan
-
-      - name: Create Conan profile
-        run: |
-          mkdir -p "$HOME/.conan2/profiles"
-          cat > "$HOME/.conan2/profiles/ci-gcc13" <<'EOF'
-          [settings]
-          arch=x86_64
-          build_type=Debug
-          compiler=gcc
-          compiler.cppstd=23
-          compiler.libcxx=libstdc++11
-          compiler.version=13
-          os=Linux
-          EOF
+        run: python -m pip install --upgrade pip 'conan>=2.4,<3'
 
       - name: Bootstrap (configure only)
         run: >
           ./scripts/bootstrap.sh
           --preset ci-gcc-debug
-          --host-profile ci-gcc13
-          --build-profile ci-gcc13
+          --host-profile profiles/ci/gcc13
+          --build-profile profiles/ci/gcc13
 
       - name: Check formatting
         run: ./scripts/format.sh --check
 
       - name: Run clang-tidy
         run: ./scripts/lint.sh --preset ci-gcc-debug
-

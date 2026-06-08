@@ -1,0 +1,14 @@
+{
+    "version": "0.5",
+    "requires": [
+        "tl-expected/1.1.0#beaea6a1c8d4e2ec7985524fbe8967fd%1705061597.455",
+        "spdlog/1.13.0#d301f3e380dc9fcb1a3b57f5e22e9bd8%1767604744.442",
+        "nlohmann_json/3.11.3#45828be26eb619a2e04ca517bb7b828d%1701220705.259",
+        "gtest/1.14.0#f8f0757a574a8dd747d16af62d6eb1b7%1743410807.169",
+        "fmt/10.2.1#25441914a1da0c98628fb50c865639f8%1778145878.923",
+        "eigen/3.4.0#e7256a460e38f651ab0aa5246f94cf6a%1759398149.964"
+    ],
+    "build_requires": [],
+    "python_requires": [],
+    "config_requires": []
+}
