@@ -16,6 +16,10 @@ Bootstrap selects a Conan host profile from the CMake preset (see
 [docs/build-system.md](../build-system.md)). No manual `conan profile detect` is required
 unless you pass `--host-profile default`.
 
+Conan downloads are cached in `.conan2/` at the repository root (configured by
+[`.conanrc`](../.conanrc)). The directory is created on first bootstrap and is not
+committed to git.
+
 Verify toolchain versions:
 
 ```bash

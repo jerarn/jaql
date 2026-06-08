@@ -21,6 +21,34 @@ cmake --build --preset gcc-debug
 
 ---
 
+## Local Conan Cache
+
+The repository root [`.conanrc`](../.conanrc) sets `conan_home=./.conan2`, so the Conan
+**package cache** lives inside the project instead of `~/.conan2`. The directory is
+gitignored — it is not source code.
+
+Verify from the repository root:
+
+```bash
+conan config home
+# Expected: /path/to/jaql/.conan2
+```
+
+To reuse an existing global cache:
+
+```bash
+mv ~/.conan2 .conan2
+./scripts/bootstrap.sh
+```
+
+CMake install output (toolchain, `CMakeDeps`, `compile_commands.json`) still goes to
+`build/<preset>/` — only the binary package cache moves.
+
+**CI** continues to cache `~/.conan2` on GitHub Actions runners; no `.conanrc` is required
+there.
+
+---
+
 ## End-to-End Flow
 
 ```mermaid
@@ -222,8 +250,9 @@ conan graph info . -pr:h=profiles/ci/gcc13 -s build_type=Debug
 ## CI
 
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) uses repository profiles,
-`conan.lock`, and `conan>=2.4,<3`. The Conan binary cache (`~/.conan2`) is keyed on
-`conanfile.py` and `conan.lock` hashes.
+`conan.lock`, and `conan>=2.4,<3`. CI caches Conan packages under `~/.conan2`, keyed on
+`conanfile.py` and `conan.lock` hashes. Local development uses `./.conan2` via
+[`.conanrc`](../.conanrc) instead.
 
 ---
 
@@ -235,3 +264,4 @@ conan graph info . -pr:h=profiles/ci/gcc13 -s build_type=Debug
 | ABI/link errors with Clang preset | Wrong Conan profile (GCC binaries with Clang compiler) | Use `--preset clang-debug` (auto-selects `profiles/ci/clang17-libcxx`) or pass `--host-profile profiles/ci/clang17-libcxx` |
 | Lockfile version mismatch after dep bump | Stale `conan.lock` | Regenerate lockfile (see above) |
 | `'settings.compiler' value not defined` | Invalid profile field order | Set `compiler=` before `compiler.cppstd=` in profile files |
+| Wrong cache used / stale packages | Running Conan outside repo root | Run commands from repo root so `.conanrc` is found; check `conan config home` |

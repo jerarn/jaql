@@ -10,6 +10,7 @@ Cursor-specific configuration for JAQL lives alongside the VS Code workspace fil
 | `.cursor/rules/` | Persistent coding standards (scoped by file type where possible) |
 | `.cursor/skills/` | On-demand workflow skills |
 | `.cursor/hooks.json` | Post-edit automation (clang-format on `.hpp`/`.cpp`) |
+| `.cursor/mcp.json.example` | Example MCP config for GitHub + Atlassian Cloud |
 | `.cursorignore` | Excludes build artifacts from agent indexing |
 
 Human-readable quick-reference: [.github/copilot-instructions.md](../.github/copilot-instructions.md)
@@ -53,6 +54,40 @@ Same as the [VS Code workflow](vscode-workflow.md):
 4. `./scripts/format.sh --check` and `./scripts/lint.sh` before committing
 
 Agent edits to `.hpp` and `.cpp` files are auto-formatted via the `afterFileEdit` hook.
+
+## MCP Integrations (GitHub + Confluence)
+
+Example configuration: [`.cursor/mcp.json.example`](../../.cursor/mcp.json.example)
+
+**Do not commit tokens.** Copy the example to your personal config and fill in credentials:
+
+```bash
+cp .cursor/mcp.json.example ~/.cursor/mcp.json
+# Edit ~/.cursor/mcp.json — replace YOUR_* placeholders
+```
+
+Restart Cursor and verify green status under **Settings → Tools & Integrations → MCP**.
+
+| Server | Purpose | Prerequisites |
+|--------|---------|---------------|
+| `github` | Repos, PRs, issues, Actions | [GitHub PAT](https://github.com/settings/personal-access-tokens/new) with repo scope |
+| `mcp-atlassian` | Confluence (and Jira if configured) | [Atlassian API token](https://id.atlassian.com/manage-profile/security/api-tokens), `uv`/`uvx` on PATH |
+
+Cursor often launches MCP with a minimal `PATH`. If Atlassian shows `spawn uvx ENOENT`, use the
+absolute path to `uvx` in `mcp.json` (run `command -v uvx` in a terminal — typically
+`~/.local/bin/uvx`).
+
+For Confluence-only use, omit the `JIRA_*` environment variables from the Atlassian block.
+
+Example prompts once connected:
+
+```
+List open PRs on jaql and summarize failing CI checks
+```
+
+```
+Search Confluence for JAQL architecture documentation
+```
 
 ## Rules vs Skills
 
