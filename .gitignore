@@ -44,6 +44,9 @@ build/
 Build/
 build-*/
 
+# Conan local package cache (see .conanrc)
+.conan2/
+
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt

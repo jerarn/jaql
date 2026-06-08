@@ -1,0 +1,2 @@
+# JAQL-local Conan home (package cache). Not committed — see .gitignore.
+conan_home=./.conan2
