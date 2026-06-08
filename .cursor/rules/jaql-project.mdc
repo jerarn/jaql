@@ -1,0 +1,47 @@
+---
+description: JAQL project identity, architecture, paths, and build commands
+alwaysApply: true
+---
+
+# JAQL Project
+
+Modular C++23 quantitative finance library. All generated code must conform to `docs/`.
+
+## Module Layers (strict one-way dependencies)
+
+```
+Foundation:  infra → core → math
+Domain:      instruments, market, curves
+Analytics:   pricing, simulation, risk, portfolio
+```
+
+See [docs/architecture/module-dependencies.md](docs/architecture/module-dependencies.md).
+
+## Layout
+
+- Headers: `include/jaql/<module>/`
+- Sources: `src/<module>/`
+- Unit tests: `tests/unit/<module>/`
+
+## Build & Test
+
+```bash
+./scripts/bootstrap.sh
+cmake --build --preset gcc-debug
+./scripts/test.sh
+./scripts/format.sh --check
+./scripts/lint.sh
+```
+
+Default preset: `gcc-debug`. CI presets: `ci-gcc-debug`, `ci-clang-debug`, etc.
+
+## Documentation Index
+
+| Topic | File |
+|-------|------|
+| Coding standards | `docs/coding-standards.md` |
+| Architecture | `docs/architecture/overview.md` |
+| Module dependencies | `docs/architecture/module-dependencies.md` |
+| Build system | `docs/build-system.md` |
+| Testing | `docs/testing-strategy.md` |
+| Contributing | `docs/contributing.md` |

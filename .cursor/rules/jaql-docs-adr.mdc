@@ -1,0 +1,23 @@
+---
+description: Documentation and ADR conventions for JAQL
+globs: "docs/**/*.md"
+alwaysApply: false
+---
+
+# JAQL Documentation
+
+## ADR Format
+
+Architecture Decision Records live in `docs/adr/`.
+
+- Filename: `ADR-<NNNN>-<kebab-case-title>.md` (4-digit zero-padded number)
+- Template reference: [docs/adr/ADR-0001-conan2-package-manager.md](docs/adr/ADR-0001-conan2-package-manager.md)
+- New ADRs start with `Status: Proposed`
+
+Determine the next ADR number by listing existing files in `docs/adr/`.
+
+## Writing Style
+
+- Link to authoritative docs rather than duplicating standards.
+- Coding standards belong in `docs/coding-standards.md`, not scattered across ADRs.
+- Use the `@jaql-new-adr` skill to scaffold new ADRs.

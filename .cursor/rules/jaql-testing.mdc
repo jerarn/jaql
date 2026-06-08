@@ -1,0 +1,31 @@
+---
+description: GoogleTest conventions for JAQL unit and integration tests
+globs: "tests/**/*.{hpp,cpp}"
+alwaysApply: false
+---
+
+# JAQL Testing
+
+Full reference: [docs/testing-strategy.md](docs/testing-strategy.md)
+
+## File Mapping
+
+`include/jaql/<module>/<header>.hpp` → `tests/unit/<module>/test_<header>.cpp`
+
+## Naming
+
+`TEST(ClassName, MethodName_Scenario_ExpectedOutcome)` — three underscore-separated parts.
+
+## Rules
+
+1. One test per logical behaviour, not one test per function.
+2. Every `Result<T>` function needs explicit error-path tests.
+3. Never compare `double` with `==` — use `EXPECT_NEAR` or `JAQL_EXPECT_NEAR_REL`.
+4. Use `ASSERT_TRUE(result.has_value()) << result.error().message;` before dereferencing `Result<T>`.
+5. No `using namespace` at file scope.
+6. Use `static_assert` for compile-time invariants where applicable.
+7. Update `tests/unit/<module>/CMakeLists.txt` when adding test files.
+
+## Validation
+
+After adding tests, run `./scripts/test.sh` or build the specific test target.

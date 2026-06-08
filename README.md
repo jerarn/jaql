@@ -124,6 +124,7 @@ cmake --build --preset gcc-debug
 | [Contributing](CONTRIBUTING.md)                                      | Branch strategy, PR workflow, commit conventions         |
 | [Dev Setup (Linux)](docs/dev/setup.md)                               | Fast local setup and validation path                     |
 | [VS Code Workflow](docs/dev/vscode-workflow.md)                      | Tasks, debug launch, and daily editor loop               |
+| [Cursor Workflow](docs/dev/cursor-workflow.md)                         | AI rules, skills, hooks, and agent workflows             |
 
 ---
 

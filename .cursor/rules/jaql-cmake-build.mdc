@@ -1,0 +1,38 @@
+---
+description: CMake, Conan, and build preset conventions for JAQL
+globs: "**/CMakeLists.txt,cmake/**,conanfile.py,CMakePresets.json"
+alwaysApply: false
+---
+
+# JAQL Build System
+
+Full reference: [docs/build-system.md](docs/build-system.md)
+
+## Module Targets
+
+```cmake
+add_library(jaql_<module> ...)
+add_library(jaql::<module> ALIAS jaql_<module>)
+```
+
+- `CXX_STANDARD 23`, `CXX_EXTENSIONS OFF`
+- Public includes: `$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>`
+- Link only modules allowed by [docs/architecture/module-dependencies.md](docs/architecture/module-dependencies.md)
+
+## Dependency Layers
+
+Foundation → Domain → Analytics. Lower layers never depend on upper layers.
+
+## Presets
+
+| Preset | Purpose |
+|--------|---------|
+| `gcc-debug` | Daily development (ASan + UBSan) |
+| `gcc-release` | Optimized local build |
+| `ci-gcc-debug` | CI with coverage and `-Werror` |
+
+Configure: `cmake --preset <name>`. Build: `cmake --build --preset <name>`.
+
+## Conan
+
+Dependencies managed via Conan 2 — see `conanfile.py` and `conan.lock`.

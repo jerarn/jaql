@@ -1,0 +1,44 @@
+---
+description: C++23 coding standards for JAQL headers and sources
+globs: "**/*.{hpp,cpp}"
+alwaysApply: false
+---
+
+# JAQL C++ Standards
+
+Full reference: [docs/coding-standards.md](docs/coding-standards.md)
+
+## Language
+
+- C++23 only. `CXX_EXTENSIONS OFF` — no GNU/MSVC extensions.
+- Target: GCC 13+, Clang 17+, MSVC 2022.
+
+## Naming
+
+| Entity | Convention | Example |
+|--------|------------|---------|
+| Types, concepts | `PascalCase` | `YieldCurve` |
+| Functions, variables | `snake_case` | `discount_factor()` |
+| Private members | `snake_case_` | `settlement_date_` |
+| Namespaces | `snake_case` | `jaql::rates` |
+| Macros | `JAQL_SCREAMING_SNAKE` | `JAQL_ASSERT` |
+
+## Error Handling
+
+- Return `Result<T>` (`tl::expected<T, jaql::Error>`), always `[[nodiscard]]`.
+- Propagate with `.map()` / `.and_then()` — never swallow errors.
+- No throws for domain failures; exceptions for programmer errors only.
+
+```cpp
+[[nodiscard]] auto discount_factor(YearFraction t, Rate r) noexcept -> Result<double>;
+```
+
+## Strong Types & Concepts
+
+- Use `StrongType<Tag, T>` for domain quantities (`Rate`, `Notional`, …).
+- Use C++23 `requires` concepts — never SFINAE (`std::enable_if_t`).
+
+## Headers
+
+- `.hpp` / `.cpp`, `#pragma once` only.
+- Include order: corresponding header → JAQL → third-party → standard library (alphabetical within each group).
