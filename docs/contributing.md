@@ -143,16 +143,18 @@ The project is pre-1.0.0. MINOR bumps may contain breaking changes during this p
    status, version stability.
 3. Add to `conanfile.py` under `requires`.
 4. Add the corresponding `find_package()` call in the root `CMakeLists.txt`.
-5. Document in [docs/tech-stack.md](tech-stack.md) with version, purpose, and
+5. Regenerate `conan.lock` (see [docs/build-system.md](build-system.md)).
+6. Document in [docs/tech-stack.md](tech-stack.md) with version, purpose, and
    alternatives considered.
 
 ### Upgrading a Dependency
 
 1. Check the upstream changelog for breaking changes.
 2. Bump the version in `conanfile.py`.
-3. Run the full test suite: `./scripts/test.sh --preset ci-gcc-debug`.
-4. Update the version in [docs/tech-stack.md](tech-stack.md).
-5. Commit: `chore(<scope>): upgrade <dep> from X.Y to X.Z`.
+3. Regenerate `conan.lock` (see [docs/build-system.md](build-system.md)).
+4. Run the full test suite: `./scripts/test.sh --preset ci-gcc-debug`.
+5. Update the version in [docs/tech-stack.md](tech-stack.md).
+6. Commit: `chore(<scope>): upgrade <dep> from X.Y to X.Z`.
 
 ---
 

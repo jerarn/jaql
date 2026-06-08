@@ -67,12 +67,17 @@ with no lock-in.
 
 ### Conan 2 Key Commands
 
+Prefer `./scripts/bootstrap.sh` for the full workflow. See [docs/build-system.md](build-system.md).
+
 ```bash
-# Install dependencies (with binary cache)
-conan install . --build=missing -pr:b=default -pr:h=default
+# Install dependencies (bootstrap does this automatically)
+conan install . --build=missing \
+  -pr:h=profiles/ci/gcc13 \
+  -s build_type=Debug \
+  --lockfile conan.lock --lockfile-partial
 
 # List resolved dependency graph
-conan graph info .
+conan graph info . -pr:h=profiles/ci/gcc13 -s build_type=Debug
 
 # Search for a package version
 conan search <package> -r conancenter

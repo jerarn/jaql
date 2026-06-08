@@ -9,9 +9,12 @@ Install required tools:
 ```bash
 sudo apt update
 sudo apt install -y cmake ninja-build gcc-13 g++-13 clang-17 clang-format-17 clang-tidy-17 lcov python3-pip
-python3 -m pip install --user --upgrade conan
-conan profile detect --force
+python3 -m pip install --user 'conan>=2.4,<3'
 ```
+
+Bootstrap selects a Conan host profile from the CMake preset (see
+[docs/build-system.md](../build-system.md)). No manual `conan profile detect` is required
+unless you pass `--host-profile default`.
 
 Verify toolchain versions:
 

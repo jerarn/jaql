@@ -1,288 +1,237 @@
 # Build System
 
-This document explains how to configure, build, and test JAQL using CMake.
-It covers all supported workflows: local development, IDE integration, CI, and
-cross-platform builds.
+JAQL uses **Conan 2** (consumer mode) for third-party dependencies and **CMake 3.25+**
+with **CMake Presets v7** for configure/build/test. Module code never calls Conan APIs;
+the root `CMakeLists.txt` uses standard `find_package()`.
+
+See also [ADR-0001](adr/ADR-0001-conan2-package-manager.md) for the original decision.
 
 ---
 
-## Prerequisites
-
-See [docs/dev/setup.md](dev/setup.md) for the full install procedure. Summary:
-
-- CMake 3.25+, Ninja 1.11+, GCC 13+ or Clang 17+
-- Conan 2.4+ (`pip install conan && conan profile detect`)
-
----
-
-## Dependency Installation and Configure
-
-JAQL uses Conan 2 in [consumer workflow](https://docs.conan.io/2/) mode with a
-script-first local workflow.
-
-### Recommended bootstrap flow
+## Quick Start
 
 ```bash
+python3 -m pip install --user 'conan>=2.4,<3'
 ./scripts/bootstrap.sh
+cmake --build --preset gcc-debug
+./scripts/test.sh
 ```
 
-The bootstrap script installs Conan dependencies into the selected preset build
-directory and then runs `cmake --preset <preset>`. By default it uses `gcc-debug`.
-
-### Advanced bootstrap usage
-
-```bash
-# Alternate preset
-./scripts/bootstrap.sh --preset clang-debug
-
-# Explicit Conan host/build profiles (same model used in CI)
-./scripts/bootstrap.sh --preset ci-gcc-debug --host-profile ci-gcc13 --build-profile ci-gcc13
-```
-
-### Inspect the dependency graph
-
-```bash
-conan graph info . --format=text
-```
-
-### Conan Profiles
-
-A Conan profile captures the compiler, settings, and options for a build. The default
-profile created by `conan profile detect` is sufficient for most local development.
-
-To create a profile for a specific configuration:
-
-```bash
-conan profile show default         # inspect the default profile
-cp ~/.conan2/profiles/default ~/.conan2/profiles/clang17-debug
-# Edit ~/.conan2/profiles/clang17-debug to set compiler=clang, version=17
-```
-
-For CI, the bootstrap step in the GitHub Actions workflow creates the profile
-programmatically from environment variables.
+`bootstrap.sh` runs `conan install` into `build/<preset>/`, then `cmake --preset <preset>`.
 
 ---
 
-## CMake Presets
+## End-to-End Flow
 
-JAQL uses `CMakePresets.json` for reproducible, IDE-integrated build configurations.
-All available presets are listed in `CMakePresets.json`.
-
-### Configure
-
-```bash
-cmake --preset <preset-name>
+```mermaid
+flowchart LR
+    BS[bootstrap.sh] --> MAP[preset to profile and options]
+    MAP --> CI["conan install --lockfile"]
+    P[profiles/] --> CI
+    CF[conanfile.py] --> CI
+    LK[conan.lock] --> CI
+    CI --> OUT[build/preset/]
+    OUT --> CM["cmake --preset"]
+    CP[CMakePresets.json] --> CM
+    CM --> FP[find_package]
 ```
 
-### Build
+Each CMake preset gets an isolated directory under `build/<preset>/` containing:
 
-```bash
-cmake --build --preset <preset-name>
-
-# With parallelism
-cmake --build --preset gcc-debug -- -j$(nproc)
-```
-
-### Test
-
-```bash
-ctest --preset <preset-name> --output-on-failure
-```
-
-### Available Presets
-
-| Preset             | Build Type | Sanitizers   | Tests | Benchmarks | Extra Flags               |
-|--------------------|------------|--------------|-------|------------|---------------------------|
-| `gcc-debug`        | Debug      | ASan + UBSan | ON    | OFF        | Full debug info           |
-| `gcc-release`      | Release    | —            | ON    | OFF        | Optimized build           |
-| `clang-debug`      | Debug      | ASan + UBSan | ON    | OFF        | Clang toolchain validation|
-| `clang-release`    | Release    | —            | ON    | OFF        | Clang release validation  |
-| `ci-gcc-debug`     | Debug      | —            | ON    | OFF        | Coverage, -Werror         |
-| `ci-clang-debug`   | Debug      | —            | ON    | OFF        | -Werror                   |
-| `ci-gcc-release`   | Release    | —            | ON    | OFF        | -Werror                   |
-| `ci-clang-release` | Release    | —            | ON    | OFF        | -Werror                   |
-| `asan`             | Debug      | ASan         | ON    | OFF        |                           |
-| `ubsan`            | Debug      | UBSan        | ON    | OFF        |                           |
-| `tsan`             | Debug      | TSan         | ON    | OFF        | Incompatible with ASan    |
-| `benchmark`        | Release    | —            | OFF   | ON         | LTO                       |
-
-### Build Directory Layout
-
-Each preset writes to its own subdirectory of `build/`:
-
-```
-build/
-├── gcc-debug/
-│   ├── compile_commands.json    # used by clangd
-│   └── ...
-├── gcc-release/
-├── ci-gcc-debug/
-└── benchmark/
-```
-
-The `build/` directory is git-ignored. Never commit build artefacts.
+- `conan_toolchain.cmake` — compiler, flags, `CMAKE_PREFIX_PATH`
+- Per-package `*-config.cmake` files from `CMakeDeps`
+- The Ninja build tree and `compile_commands.json`
 
 ---
 
-## CMake Build Options
+## Conan Consumer Recipe
 
-These options can be set on the command line with `-D<OPTION>=ON/OFF` or via a preset:
+[`conanfile.py`](../conanfile.py) at the repository root is a **consumer-only** recipe.
+It does not implement `build()`, `package()`, or `layout()` — JAQL is built by CMake, not
+published as a Conan package.
 
-| Option                        | Default | Description                                      |
-|-------------------------------|---------|--------------------------------------------------|
-| `JAQL_BUILD_TESTS`            | `ON`    | Build the `tests/` target                        |
-| `JAQL_BUILD_BENCHMARKS`       | `OFF`   | Build the `benchmarks/` target                   |
-| `JAQL_BUILD_EXAMPLES`         | `OFF`   | Build the `examples/` target                     |
-| `JAQL_ENABLE_ASAN`            | `OFF`   | Enable AddressSanitizer                          |
-| `JAQL_ENABLE_UBSAN`           | `OFF`   | Enable UndefinedBehaviorSanitizer                |
-| `JAQL_ENABLE_TSAN`            | `OFF`   | Enable ThreadSanitizer                           |
-| `JAQL_ENABLE_COVERAGE`        | `OFF`   | Enable gcov/lcov coverage instrumentation        |
-| `JAQL_ENABLE_CLANG_TIDY`      | `OFF`   | Run clang-tidy during the build                  |
-| `JAQL_WARNINGS_AS_ERRORS`     | `OFF`   | Treat all warnings as errors (-Werror)           |
-| `JAQL_BUILD_DOCS`             | `OFF`   | Enable the `doxygen` documentation target        |
+### Runtime requirements (`requirements()`)
+
+Direct third-party libraries used by JAQL modules:
+
+| Package | Version |
+|---------|---------|
+| tl-expected | 1.1.0 |
+| spdlog | 1.13.0 |
+| eigen | 3.4.0 |
+| nlohmann_json | 3.11.3 |
+
+### Build and test requirements (`build_requirements()`)
+
+| Package | When installed | Mechanism |
+|---------|----------------|-----------|
+| doxygen | `build_docs=True` | `tool_requires` |
+| gtest | `build_tests=True` | `test_requires` |
+| benchmark | `build_benchmarks=True` | `test_requires` |
+
+### Conan options
+
+| Option | Default | Purpose |
+|--------|---------|---------|
+| `build_docs` | False | Install Doxygen; set `DOXYGEN_EXECUTABLE` and `JAQL_BUILD_DOCS` in toolchain |
+| `build_tests` | True | Install GoogleTest |
+| `build_benchmarks` | False | Install Google Benchmark |
+
+Bootstrap maps CMake preset flags to these options automatically (for example, the
+`benchmark` preset sets `build_tests=False` and `build_benchmarks=True`). Pass
+`--docs` to enable `build_docs`.
+
+Option syntax at the CLI: `-o "jaql/*:build_tests=True"`.
+
+### Generators
+
+- **`CMakeDeps`** — produces `find_package()`-compatible config files.
+- **`CMakeToolchain`** (custom `generate()`) — writes `conan_toolchain.cmake`.
+  `user_presets_path = False` keeps repository [`CMakePresets.json`](../CMakePresets.json)
+  as the sole preset source.
 
 ---
 
-## Doxygen Pipeline
+## Profiles
 
-The repository includes a Doxygen template at `docs/Doxyfile.in` and an optional CMake
-target enabled by passing `--docs` to bootstrap.
+Conan profiles live in the repository under [`profiles/`](../profiles/):
+
+| Profile | Use case |
+|---------|----------|
+| `profiles/ci/gcc13` | GCC 13, libstdc++11, C++23 |
+| `profiles/ci/clang17-libcxx` | Clang 17, libc++, C++23 |
+
+Profiles intentionally omit `build_type`. Bootstrap passes
+`-s build_type=Debug|Release` derived from the CMake preset.
+
+### Preset → profile mapping
+
+Unless overridden, bootstrap selects:
+
+| CMake preset family | Host profile |
+|---------------------|--------------|
+| `gcc-*`, `ci-gcc-*`, `asan`, `ubsan`, `tsan`, `benchmark` | `profiles/ci/gcc13` |
+| `clang-*`, `ci-clang-*` | `profiles/ci/clang17-libcxx` |
+
+Override with `--host-profile` / `--build-profile`, or
+`JAQL_CONAN_HOST_PROFILE` / `JAQL_CONAN_BUILD_PROFILE`.
+
+To use your machine-detected compiler instead of CI profiles, pass
+`--host-profile default` (bootstrap runs `conan profile detect` if needed).
+
+See [`profiles/local/README.md`](../profiles/local/README.md) for local development notes.
+
+**Profile ordering:** In Conan profile files, set `compiler=` before `compiler.cppstd=`.
+
+---
+
+## Lockfile
+
+[`conan.lock`](../conan.lock) pins the resolved dependency graph (including transitive
+packages such as `fmt`). Bootstrap and CI use:
 
 ```bash
-./scripts/bootstrap.sh --docs
-cmake --build --preset gcc-debug --target doxygen
+conan install . --lockfile conan.lock --lockfile-partial ...
 ```
 
-`--docs` installs Doxygen via Conan and injects `DOXYGEN_EXECUTABLE` and
-`JAQL_BUILD_DOCS=ON` into the CMake cache automatically.
+`--lockfile-partial` allows profile-specific binaries while keeping versions fixed.
 
----
+### Regenerating the lockfile
 
-## Adding a New Module
-
-New modules follow the `jaql_add_module()` helper defined in `cmake/JaqlModule.cmake`:
-
-```cmake
-# src/mymodule/CMakeLists.txt
-jaql_add_module(
-    mymodule
-    SOURCES
-        my_type.cpp
-        my_algorithm.cpp
-    HEADERS
-        ../../include/jaql/mymodule/my_type.hpp
-        ../../include/jaql/mymodule/my_algorithm.hpp
-    DEPS
-        core
-        math
-)
-```
-
-This creates:
-- A library target `jaql_mymodule`
-- An alias `jaql::mymodule` (use this in `target_link_libraries`)
-- Correct include directories (`include/jaql/mymodule/` as public, `src/mymodule/detail/`
-  as private)
-- Compiler warning flags applied
-- Sanitizer flags applied when the relevant preset is active
-- Install rules for `cmake --install`
-
-Then add `add_subdirectory(mymodule)` to `src/CMakeLists.txt` in topological order.
-
----
-
-## Compiler Warnings
-
-Warnings are configured in `cmake/CompilerWarnings.cmake` and applied to all targets by
-`jaql_add_module()`. The warning set is aggressive by design — all warnings listed below
-are enabled:
-
-**GCC / Clang:**
-
-```
--Wall -Wextra -Wpedantic -Wshadow -Wnon-virtual-dtor -Wold-style-cast
--Wcast-align -Wunused -Woverloaded-virtual -Wconversion -Wsign-conversion
--Wnull-dereference -Wdouble-promotion -Wformat=2 -Wimplicit-fallthrough
-```
-
-**MSVC:** `/W4 /w14640 /w14265 /w14826 /w15038`
-
-With `JAQL_WARNINGS_AS_ERRORS=ON` (used in CI): `-Werror` / `/WX` is added.
-
----
-
-## Coverage Report
-
-Run the `ci-gcc-debug` preset and then generate a coverage report:
+After changing direct dependencies in `conanfile.py`:
 
 ```bash
-cmake --preset ci-gcc-debug
-cmake --build --preset ci-gcc-debug
-ctest --preset ci-gcc-debug
-cmake --build --preset ci-gcc-debug --target coverage
+conan lock create . \
+  -pr:h=profiles/ci/gcc13 \
+  -s build_type=Debug \
+  -o "jaql/*:build_tests=True" \
+  -o "jaql/*:build_benchmarks=False" \
+  --lockfile-out=conan.lock
 ```
 
-The HTML coverage report is written to `build/ci-gcc-debug/coverage/index.html`.
+Commit the updated `conan.lock` with the dependency change.
 
 ---
 
-## IDE Integration
+## CMake Integration
 
-### VS Code
+### Presets
 
-1. Install the [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
-   extension.
-2. Open the repository folder. CMake Tools will detect `CMakePresets.json` automatically.
-3. Select the `gcc-debug` preset from the status bar.
-4. Install [clangd](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd).
-   It uses `build/gcc-debug/compile_commands.json` automatically.
+[`CMakePresets.json`](../CMakePresets.json) defines configure/build/test presets. The
+hidden `base` preset wires the Conan toolchain:
 
-See `.vscode/settings.json` for the pre-configured workspace settings.
+```json
+"toolchainFile": "${sourceDir}/build/${presetName}/conan_toolchain.cmake"
+```
 
-### CLion
+Common presets:
 
-1. Open the repository folder. CLion detects `CMakePresets.json` automatically
-   (CLion 2023.2+).
-2. Select `gcc-debug` as the active configuration.
-3. Run `./scripts/bootstrap.sh --preset gcc-debug` before first configure when Conan
-   artifacts are missing.
+| Preset | Build type | Notes |
+|--------|------------|-------|
+| `gcc-debug` | Debug | ASan + UBSan, tests on |
+| `clang-debug` | Debug | ASan + UBSan, tests on |
+| `benchmark` | Release | Benchmarks on, tests off, LTO |
+| `ci-gcc-debug` | Debug | Coverage + Werror |
+| `ci-clang-debug` | Debug | Werror |
 
-### compile_commands.json
+### Root dependency wiring
 
-All CMake configurations generate `compile_commands.json` in their build directory.
-This file is required by clangd, `clang-tidy`, and include-what-you-use. A symlink at
-the repository root can be created for convenience:
+[`CMakeLists.txt`](../CMakeLists.txt) calls `find_package()` for Conan-provided targets.
+Module `CMakeLists.txt` link via `jaql_add_module(DEPS ...)` — no Conan references.
+
+### Scripts
+
+| Script | Purpose |
+|--------|---------|
+| [`scripts/bootstrap.sh`](../scripts/bootstrap.sh) | Conan install + CMake configure |
+| [`scripts/test.sh`](../scripts/test.sh) | `ctest --preset` |
+| [`scripts/lint.sh`](../scripts/lint.sh) | clang-tidy using `compile_commands.json` |
+| [`scripts/check_headers.sh`](../scripts/check_headers.sh) | Standalone header compiles via Conan toolchain |
+
+---
+
+## Dependency Graph Policy
+
+### Adding a dependency
+
+1. Add to `conanfile.py` under `requires()` (or conditional `build_requirements()`).
+2. Add `find_package()` in root `CMakeLists.txt`.
+3. Link in module `CMakeLists.txt` via `jaql_add_module(DEPS ...)`.
+4. Regenerate `conan.lock`.
+5. Document in [`docs/tech-stack.md`](tech-stack.md).
+
+### Overrides, visibility, and package options
+
+The current graph is small and has no version conflicts. Do **not** add overrides
+preemptively. When `conan graph info .` reports a conflict, use:
+
+| Mechanism | When to use |
+|-----------|-------------|
+| `self.requires("pkg/version", override=True)` | Force a transitive version (e.g. conflicting `fmt` versions pulled by spdlog and another library) |
+| `self.requires("pkg/version", visible=False)` | Hide an implementation-only dependency from downstream consumers (relevant if JAQL is ever packaged via Conan) |
+| Requirement options, e.g. `self.requires("spdlog/1.13.0", options={"header_only": True})` | Forward upstream package configuration |
+
+Inspect the graph before and after:
 
 ```bash
-ln -sf build/gcc-debug/compile_commands.json compile_commands.json
+conan graph info . -pr:h=profiles/ci/gcc13 -s build_type=Debug
 ```
 
 ---
 
-## CI Pipeline
+## CI
 
-The GitHub Actions CI pipeline is defined in `.github/workflows/ci.yml`. It:
-
-1. Checks out the repository.
-2. Installs compiler/toolchain packages and Conan.
-3. Creates explicit Conan profiles for each matrix entry.
-4. Runs `./scripts/bootstrap.sh --preset <ci-preset> --host-profile <profile> --build-profile <profile>`.
-5. Builds all targets with `cmake --build --preset <ci-preset>`.
-6. Runs tests with `./scripts/test.sh --preset <ci-preset>`.
-7. On the GCC 13 Debug CI job, conditionally generates and uploads coverage artifacts.
-
-The pipeline runs on every push to every branch.
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) uses repository profiles,
+`conan.lock`, and `conan>=2.4,<3`. The Conan binary cache (`~/.conan2`) is keyed on
+`conanfile.py` and `conan.lock` hashes.
 
 ---
 
-## Developer Scripts
+## Troubleshooting
 
-| Script                    | Purpose                                                  |
-|---------------------------|----------------------------------------------------------|
-| `scripts/bootstrap.sh`    | Install Conan deps and configure for development          |
-| `scripts/test.sh`         | Run ctest using the selected test preset                 |
-| `scripts/format.sh`       | Run clang-format on all .hpp/.cpp files (in-place)       |
-| `scripts/lint.sh`         | Run clang-tidy on all source files                       |
-| `scripts/check_headers.sh`| Verify every public header compiles standalone           |
-
-Run `scripts/bootstrap.sh` to get started after cloning. Then use the presets directly.
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `conan_toolchain.cmake` not found | CMake configured before Conan install | Run `./scripts/bootstrap.sh --preset <preset>` |
+| ABI/link errors with Clang preset | Wrong Conan profile (GCC binaries with Clang compiler) | Use `--preset clang-debug` (auto-selects `profiles/ci/clang17-libcxx`) or pass `--host-profile profiles/ci/clang17-libcxx` |
+| Lockfile version mismatch after dep bump | Stale `conan.lock` | Regenerate lockfile (see above) |
+| `'settings.compiler' value not defined` | Invalid profile field order | Set `compiler=` before `compiler.cppstd=` in profile files |
