@@ -9,8 +9,16 @@ class JaqlConan(ConanFile):
     version = "0.1.0"
     description = "Modular C++23 quantitative finance library"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"build_docs": [True, False]}
-    default_options = {"build_docs": False}
+    options = {
+        "build_docs": [True, False],
+        "build_tests": [True, False],
+        "build_benchmarks": [True, False],
+    }
+    default_options = {
+        "build_docs": False,
+        "build_tests": True,
+        "build_benchmarks": False,
+    }
     generators = "CMakeDeps"
 
     def requirements(self):
@@ -22,8 +30,10 @@ class JaqlConan(ConanFile):
     def build_requirements(self):
         if self.options.build_docs:
             self.tool_requires("doxygen/1.17.0")
-        self.test_requires("gtest/1.14.0")
-        self.test_requires("benchmark/1.8.3")
+        if self.options.build_tests:
+            self.test_requires("gtest/1.14.0")
+        if self.options.build_benchmarks:
+            self.test_requires("benchmark/1.8.3")
 
     def generate(self):
         toolchain = CMakeToolchain(self)
