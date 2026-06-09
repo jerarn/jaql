@@ -198,7 +198,7 @@ After all headers in `infra` and `core` are finalised.
 
 - Add `/// @brief`, `@param`, and `@return` Doxygen comments to every public API in
   `include/jaql/infra/` and `include/jaql/core/`.
-- Confirm that `docs/Doxyfile.in` lists both directories under `INPUT`.
+- Confirm `./scripts/check_docs.sh` passes with no warnings.
 
 ## Recommended Order
 
@@ -219,13 +219,13 @@ Phase 1 is complete when all of the following are true:
    public header in `infra` and `core`.
 3. `./scripts/lint.sh` reports no clang-tidy violations.
 4. `./scripts/check_headers.sh` confirms every new header is self-contained.
-5. `StrongType` prevents mixing `Rate` and `Spread` at compile time; a misuse produces a
+5. `./scripts/check_docs.sh` passes — all public APIs in `infra` and `core` are documented.
+6. `StrongType` prevents mixing `Rate` and `Spread` at compile time; a misuse produces a
    readable error message pointing to the policy, not to internal templates.
-6. Date arithmetic is correct for leap years, end-of-month edges, and all five business
+7. Date arithmetic is correct for leap years, end-of-month edges, and all five business
    day convention cases at month boundaries.
-7. The `benchmark` preset with `JAQL_BUILD_BENCHMARKS=ON` confirms that
+8. The `benchmark` preset with `JAQL_BUILD_BENCHMARKS=ON` confirms that
    `BM_ResultChain` adds ≤ 2 ns overhead relative to `BM_RawDouble`.
-8. All public APIs in `infra` and `core` carry Doxygen comments.
 
 ## Out of Scope
 

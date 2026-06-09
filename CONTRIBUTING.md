@@ -70,7 +70,7 @@ Before opening a PR, verify all of the following:
 - [ ] No formatting violations: `scripts/format.sh && git diff --exit-code`
 - [ ] No clang-tidy warnings: `scripts/lint.sh`
 - [ ] All public headers are self-contained: `scripts/check_headers.sh`
-- [ ] New public APIs have Doxygen `///` documentation
+- [ ] API documentation passes: `./scripts/check_docs.sh` (requires `./scripts/bootstrap.sh --docs`)
 - [ ] Commit messages follow Conventional Commits
 - [ ] No new warnings with `-Wall -Wextra -Wpedantic`
 

@@ -130,7 +130,9 @@ Conan profiles live in the repository under [`profiles/`](../profiles/):
 | `profiles/ci/clang17-libcxx` | Clang 17, libc++, C++23 |
 
 Profiles intentionally omit `build_type`. Bootstrap passes
-`-s build_type=Debug|Release` derived from the CMake preset.
+`-s build_type=Debug|Release` derived from the CMake preset and
+`-s:b build_type=Release` for the build profile so tool_requires (Doxygen, CMake)
+resolve to prebuilt binaries instead of source builds with an unset build type.
 
 ### Preset → profile mapping
 
@@ -166,14 +168,52 @@ conan install . --lockfile conan.lock --lockfile-partial ...
 
 ### Regenerating the lockfile
 
-After changing direct dependencies in `conanfile.py`:
+After changing direct dependencies in `conanfile.py`, rebuild the lockfile in stages so
+every bootstrap configuration is covered. Conan 2 stores `test_requires` (gtest,
+benchmark) under `requires`, and `tool_requires` (cmake, doxygen) under
+`build_requires`.
+
+**1. Default bootstrap** (`build_tests=True`, used by CI and daily dev):
 
 ```bash
 conan lock create . \
   -pr:h=profiles/ci/gcc13 \
+  -pr:b=profiles/ci/gcc13 \
   -s build_type=Debug \
+  -s:b build_type=Release \
   -o "jaql/*:build_tests=True" \
   -o "jaql/*:build_benchmarks=False" \
+  -o "jaql/*:build_docs=False" \
+  --lockfile-out=conan.lock
+```
+
+**2. Docs bootstrap** (`--docs`):
+
+```bash
+conan lock create . \
+  -pr:h=profiles/ci/gcc13 \
+  -pr:b=profiles/ci/gcc13 \
+  -s build_type=Debug \
+  -s:b build_type=Release \
+  -o "jaql/*:build_tests=True" \
+  -o "jaql/*:build_benchmarks=False" \
+  -o "jaql/*:build_docs=True" \
+  --lockfile conan.lock \
+  --lockfile-out=conan.lock
+```
+
+**3. Benchmark preset** (optional):
+
+```bash
+conan lock create . \
+  -pr:h=profiles/ci/gcc13 \
+  -pr:b=profiles/ci/gcc13 \
+  -s build_type=Release \
+  -s:b build_type=Release \
+  -o "jaql/*:build_tests=False" \
+  -o "jaql/*:build_benchmarks=True" \
+  -o "jaql/*:build_docs=False" \
+  --lockfile conan.lock \
   --lockfile-out=conan.lock
 ```
 

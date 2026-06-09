@@ -152,7 +152,9 @@ will be dropped in favour of the standard library type with no call-site changes
 
 The Doxygen configuration lives in [docs/Doxyfile.in](Doxyfile.in), processed by CMake.
 Generated HTML and XML are produced in the local build directory via the `doxygen`
-target. Automated publishing is not yet configured in CI.
+target. Run `./scripts/check_docs.sh` (after `./scripts/bootstrap.sh --docs`) to verify
+that public headers are fully documented; warnings are treated as errors.
+Automated publishing is not yet configured in CI.
 
 Optional (future): Sphinx with Breathe extension for narrative documentation alongside
 API docs.

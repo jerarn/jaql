@@ -16,6 +16,7 @@ in the [Naming Conventions](#naming-conventions) section below.
 | Code correctness & safety | `clang-tidy` | `.clang-tidy` (`cppcoreguidelines-*`, `modernize-*`, `readability-*`) |
 | Formatting | `clang-format` | `.clang-format` (Google style, column 100) |
 | Self-contained headers | `scripts/check_headers.sh` | — |
+| API documentation | `scripts/check_docs.sh` | `docs/Doxyfile.in` |
 
 All checks run in CI. VS Code (clangd) and CLion surface them live in the editor.
 
@@ -57,6 +58,57 @@ name collisions — the `k` prefix was a workaround for unscoped enums only.
   2. Other JAQL headers
   3. Third-party headers (Eigen, spdlog, …)
   4. Standard library headers
+
+---
+
+## API Documentation
+
+Every symbol in a public header under `include/jaql/` must carry a Doxygen comment.
+Headers in `detail/` subdirectories are excluded from the API reference and are not
+required to follow these rules.
+
+### Comment style
+
+- Use `///` line comments (not `/** … */` blocks).
+- Place the comment block immediately above the declaration it documents.
+- Start with `@brief` — one sentence describing purpose, not implementation.
+- Add `@param` for every parameter and `@return` for non-`void` functions.
+- Add `@tparam` for every template type parameter.
+
+```cpp
+/// @brief Returns or creates a named logger backed by the currently configured sink.
+///
+/// Loggers are registered in the spdlog global registry; a second call with the
+/// same name returns the identical logger instance.
+///
+/// @param name  Unique identifier for the logger.
+/// @return      Shared pointer to the named logger.
+[[nodiscard]] auto get_logger(std::string_view name) -> std::shared_ptr<spdlog::logger>;
+```
+
+### What to document
+
+| Symbol | Required tags |
+|---|---|
+| Free functions | `@brief`, `@param` (each), `@return` (if non-`void`) |
+| Member functions | `@brief`, `@param` (each), `@return` (if non-`void`) |
+| Class / struct / enum | `@brief`; document public members individually |
+| Type aliases, concepts | `@brief` |
+| `constexpr` constants | `@brief` |
+
+Omit `@return` for `void` functions. Do not restate the signature in the `@brief` line.
+
+### Validation
+
+Configure the docs build once, then run the check before opening a PR:
+
+```bash
+./scripts/bootstrap.sh --docs
+./scripts/check_docs.sh
+```
+
+`check_docs.sh` runs Doxygen with `WARN_AS_ERROR = YES`; undocumented or malformed
+comments fail the check.
 
 ---
 

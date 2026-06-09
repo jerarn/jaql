@@ -62,3 +62,9 @@ cmake --build --preset gcc-debug --target doxygen
 ```
 
 `--docs` installs Doxygen via Conan and configures the build. Generated output is in `build/gcc-debug/docs/html/index.html`.
+
+Verify documentation coverage (warnings are treated as errors):
+
+```bash
+./scripts/check_docs.sh
+```
