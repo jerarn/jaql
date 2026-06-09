@@ -91,10 +91,10 @@ conan search <package> -r conancenter
 
 | Library           | Version | Conan Ref              | Status | Purpose                                      |
 |-------------------|---------|------------------------|--------|----------------------------------------------|
-| **tl-expected**   | 1.1.0   | `tl-expected/1.1.0`    | Active | `Result<T>` — polyfill for `std::expected`   |
-| **spdlog**        | 1.13.0  | `spdlog/1.13.0`        | Active | Structured logging with async support        |
-| **Eigen**         | 3.4.0   | `eigen/3.4.0`          | Active | Linear algebra (matrices, vectors, solvers)  |
-| **nlohmann_json** | 3.11.3  | `nlohmann_json/3.11.3` | Active | JSON config parsing and output serialization |
+| **tl-expected**   | 1.2.0   | `tl-expected/1.2.0`    | Active | `Result<T>` — polyfill for `std::expected`   |
+| **spdlog**        | 1.17.0  | `spdlog/1.17.0`        | Active | Structured logging with async support        |
+| **Eigen**         | 5.0.1   | `eigen/5.0.1`          | Active | Linear algebra (matrices, vectors, solvers)  |
+| **nlohmann_json** | 3.12.0  | `nlohmann_json/3.12.0` | Active | JSON config parsing and output serialization |
 
 #### `tl-expected` vs `std::expected`
 
@@ -108,8 +108,8 @@ will be dropped in favour of the standard library type with no call-site changes
 
 | Library              | Version | Conan Ref           | Status  | Purpose                      |
 |----------------------|---------|---------------------|---------|------------------------------|
-| **GoogleTest**       | 1.14.0  | `gtest/1.14.0`      | Active  | Unit and integration testing |
-| **Google Benchmark** | 1.8.3   | `benchmark/1.8.3`   | Active  | Micro-benchmarking           |
+| **GoogleTest**       | 1.17.0  | `gtest/1.17.0`      | Active  | Unit and integration testing |
+| **Google Benchmark** | 1.9.5   | `benchmark/1.9.5`   | Active  | Micro-benchmarking           |
 
 ---
 

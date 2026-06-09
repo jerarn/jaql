@@ -84,18 +84,18 @@ Direct third-party libraries used by JAQL modules:
 
 | Package | Version |
 |---------|---------|
-| tl-expected | 1.1.0 |
-| spdlog | 1.13.0 |
-| eigen | 3.4.0 |
-| nlohmann_json | 3.11.3 |
+| tl-expected | 1.2.0 |
+| spdlog | 1.17.0 |
+| eigen | 5.0.1 |
+| nlohmann_json | 3.12.0 |
 
 ### Build and test requirements (`build_requirements()`)
 
-| Package | When installed | Mechanism |
-|---------|----------------|-----------|
-| doxygen | `build_docs=True` | `tool_requires` |
-| gtest | `build_tests=True` | `test_requires` |
-| benchmark | `build_benchmarks=True` | `test_requires` |
+| Package | Version | When installed | Mechanism |
+|---------|---------|----------------|-----------|
+| doxygen | 1.17.0 | `build_docs=True` | `tool_requires` |
+| gtest | 1.17.0 | `build_tests=True` | `test_requires` |
+| benchmark | 1.9.5 | `build_benchmarks=True` | `test_requires` |
 
 ### Conan options
 
@@ -237,7 +237,7 @@ preemptively. When `conan graph info .` reports a conflict, use:
 |-----------|-------------|
 | `self.requires("pkg/version", override=True)` | Force a transitive version (e.g. conflicting `fmt` versions pulled by spdlog and another library) |
 | `self.requires("pkg/version", visible=False)` | Hide an implementation-only dependency from downstream consumers (relevant if JAQL is ever packaged via Conan) |
-| Requirement options, e.g. `self.requires("spdlog/1.13.0", options={"header_only": True})` | Forward upstream package configuration |
+| Requirement options, e.g. `self.requires("spdlog/1.17.0", options={"header_only": True})` | Forward upstream package configuration |
 
 Inspect the graph before and after:
 

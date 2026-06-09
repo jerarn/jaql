@@ -22,18 +22,18 @@ class JaqlConan(ConanFile):
     generators = "CMakeDeps"
 
     def requirements(self):
-        self.requires("tl-expected/1.1.0")
-        self.requires("spdlog/1.13.0")
-        self.requires("eigen/3.4.0")
-        self.requires("nlohmann_json/3.11.3")
+        self.requires("tl-expected/1.2.0")
+        self.requires("spdlog/1.17.0")
+        self.requires("eigen/5.0.1")
+        self.requires("nlohmann_json/3.12.0")
 
     def build_requirements(self):
         if self.options.build_docs:
             self.tool_requires("doxygen/1.17.0")
         if self.options.build_tests:
-            self.test_requires("gtest/1.14.0")
+            self.test_requires("gtest/1.17.0")
         if self.options.build_benchmarks:
-            self.test_requires("benchmark/1.8.3")
+            self.test_requires("benchmark/1.9.5")
 
     def generate(self):
         toolchain = CMakeToolchain(self)

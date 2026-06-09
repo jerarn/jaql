@@ -1,14 +1,16 @@
 {
     "version": "0.5",
     "requires": [
-        "tl-expected/1.1.0#beaea6a1c8d4e2ec7985524fbe8967fd%1705061597.455",
-        "spdlog/1.13.0#d301f3e380dc9fcb1a3b57f5e22e9bd8%1767604744.442",
-        "nlohmann_json/3.11.3#45828be26eb619a2e04ca517bb7b828d%1701220705.259",
-        "gtest/1.14.0#f8f0757a574a8dd747d16af62d6eb1b7%1743410807.169",
-        "fmt/10.2.1#25441914a1da0c98628fb50c865639f8%1778145878.923",
-        "eigen/3.4.0#e7256a460e38f651ab0aa5246f94cf6a%1759398149.964"
+        "tl-expected/1.2.0#c30a2cd4e44fb474a1762e8679749a3e%1752825942.479",
+        "spdlog/1.17.0#bcbaaf7147bda6ad24ffbd1ac3d7142c%1767636069.964",
+        "nlohmann_json/3.12.0#2d634ab0ec8d9f56353e5ccef6d6612c%1744735883.94",
+        "gtest/1.17.0#5224b3b3ff3b4ce1133cbdd27d53ee7d%1755784855.585",
+        "fmt/12.1.0#50abab23274d56bb8f42c94b3b9a40c7%1761885265.231",
+        "eigen/5.0.1#ceac4c62a715813690dc13d666e29fbc%1763461594.306"
     ],
-    "build_requires": [],
+    "build_requires": [
+        "cmake/4.3.2#5bae0b181463ca4dc3e924a981367ee6%1779785720.872"
+    ],
     "python_requires": [],
     "config_requires": []
 }
