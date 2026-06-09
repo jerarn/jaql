@@ -1,6 +1,6 @@
 # Doxyfile.in — Doxygen configuration template
 # This file is processed by CMake's configure_file() command.
-# Variables in @...@ notation are substituted by cmake/Doxygen.cmake.
+# Variables in @...@ notation are substituted by cmake/JaqlDoxygen.cmake.
 
 #---------------------------------------------------------------------------
 # Project metadata
@@ -23,7 +23,7 @@ REPEAT_BRIEF           = YES
 # Input
 #---------------------------------------------------------------------------
 INPUT                  = "@DOXYGEN_INPUT_DIR@" \
-                         "@CMAKE_SOURCE_DIR@/README.md"
+                         "@CMAKE_SOURCE_DIR@/docs/api-mainpage.md"
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.hpp *.h
 RECURSIVE              = YES
@@ -32,7 +32,7 @@ EXCLUDE_PATTERNS       = */detail/* */test*
 STRIP_FROM_PATH        = "@CMAKE_SOURCE_DIR@/include"
 STRIP_FROM_INC_PATH    = "@CMAKE_SOURCE_DIR@/include"
 
-USE_MDFILE_AS_MAINPAGE = "@CMAKE_SOURCE_DIR@/README.md"
+USE_MDFILE_AS_MAINPAGE = "@CMAKE_SOURCE_DIR@/docs/api-mainpage.md"
 
 #---------------------------------------------------------------------------
 # Extraction
@@ -70,7 +70,6 @@ GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
 HTML_COLORSTYLE        = LIGHT
-HTML_TIMESTAMP         = YES
 HTML_DYNAMIC_SECTIONS  = NO
 GENERATE_TREEVIEW      = YES
 TREEVIEW_WIDTH         = 250
@@ -100,9 +99,6 @@ IDL_PROPERTY_SUPPORT   = YES
 #---------------------------------------------------------------------------
 HAVE_DOT               = @DOXYGEN_HAVE_DOT@
 DOT_NUM_THREADS        = 0
-DOT_FONTNAME           = Helvetica
-DOT_FONTSIZE           = 10
-CLASS_DIAGRAMS         = YES
 COLLABORATION_GRAPH    = YES
 GROUP_GRAPHS           = YES
 UML_LOOK               = NO
@@ -123,6 +119,7 @@ WARNINGS               = YES
 WARN_IF_UNDOCUMENTED   = YES
 WARN_IF_DOC_ERROR      = YES
 WARN_NO_PARAMDOC       = YES
+WARN_AS_ERROR          = YES
 WARN_FORMAT            = "$file:$line: $text"
 WARN_LOGFILE           =
 

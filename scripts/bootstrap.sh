@@ -91,6 +91,7 @@ printf 'Installing Conan dependencies into %s\n' "${build_dir}"
         -pr:h "${host_profile_resolved}"
         -pr:b "${build_profile_resolved}"
         -s build_type="${build_type}"
+        -s:b build_type=Release
     )
 
     if [[ -f "${lockfile}" ]]; then
@@ -110,5 +111,7 @@ printf 'Installing Conan dependencies into %s\n' "${build_dir}"
 printf 'Configuring CMake preset %s\n' "${preset}"
 (
     cd -- "${repo_root}"
-    cmake --preset "${preset}"
+    # Unset Conan-injected cache entries so a changed --docs flag or refreshed
+    # toolchain path (e.g. after a new Doxygen binary is installed) is picked up.
+    cmake --preset "${preset}" -UDOXYGEN_EXECUTABLE -UJAQL_BUILD_DOCS
 )
