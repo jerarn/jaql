@@ -6,10 +6,21 @@
         "nlohmann_json/3.12.0#2d634ab0ec8d9f56353e5ccef6d6612c%1744735883.94",
         "gtest/1.17.0#5224b3b3ff3b4ce1133cbdd27d53ee7d%1755784855.585",
         "fmt/12.1.0#50abab23274d56bb8f42c94b3b9a40c7%1761885265.231",
-        "eigen/5.0.1#ceac4c62a715813690dc13d666e29fbc%1763461594.306"
+        "eigen/5.0.1#ceac4c62a715813690dc13d666e29fbc%1763461594.306",
+        "benchmark/1.9.5#b885dc73ad67b40a55d45684d1c88ad1%1774363287.434"
     ],
     "build_requires": [
-        "cmake/4.3.2#5bae0b181463ca4dc3e924a981367ee6%1779785720.872"
+        "zlib/1.3.2#1cb806da49011867778ffb6ac7190fcb%1777558780.503",
+        "xapian-core/1.4.19#f8de8e284f40b94b11dd6df4acc8321a%1721053911.733",
+        "util-linux-libuuid/2.39#bd126a923abf6303015b107a7d01a37a%1765881090.201",
+        "m4/1.4.19#34c4bbc3eeebe98ca6edf2f52d602e7d%1777282960.259",
+        "libiconv/1.17#9923bc6dc6f106646d6967e0039a5ada%1774021608.288",
+        "gnu-config/cci.20210814#466e9d4d7779e1c142443f7ea44b4284%1762363589.329",
+        "flex/2.6.4#efa781fc5088b47c895bd4eef6911f2e%1761560242.855",
+        "doxygen/1.17.0#7bbd9853ee4859042bea8683d68e418e%1777740635.84",
+        "cmake/4.3.2#5bae0b181463ca4dc3e924a981367ee6%1779785720.872",
+        "cmake/3.31.12#173a926abc2b77f03c826b6fd6539426%1779785723.158",
+        "bison/3.8.2#c3490cbe0078b6fd3eb4cf5ed64144dc%1755688988.644"
     ],
     "python_requires": [],
     "config_requires": []
