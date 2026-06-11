@@ -7,6 +7,9 @@
 #include <sstream>
 #include <string>
 
+using jaql::infra::configure_logging;
+using jaql::infra::get_logger;
+
 namespace {
 
 // RAII guard: drops a named logger from the spdlog registry on scope exit.
@@ -29,8 +32,8 @@ TEST(Logger, GetLogger_SameName_ReturnsSamePointer) {
   constexpr std::string_view name = "test_same_ptr";
   LoggerGuard guard{std::string(name)};
 
-  auto logger_a = jaql::infra::get_logger(name);
-  auto logger_b = jaql::infra::get_logger(name);
+  auto logger_a = get_logger(name);
+  auto logger_b = get_logger(name);
 
   EXPECT_EQ(logger_a.get(), logger_b.get());
 }
@@ -43,9 +46,9 @@ TEST(Logger, ConfigureLogging_LevelWarn_SuppressesLowerMessages) {
 
   std::ostringstream oss;
   auto sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(oss);
-  jaql::infra::configure_logging(spdlog::level::warn, sink);
+  configure_logging(spdlog::level::warn, sink);
 
-  auto logger = jaql::infra::get_logger(name);
+  auto logger = get_logger(name);
 
   EXPECT_FALSE(logger->should_log(spdlog::level::trace));
   EXPECT_FALSE(logger->should_log(spdlog::level::debug));
@@ -55,7 +58,7 @@ TEST(Logger, ConfigureLogging_LevelWarn_SuppressesLowerMessages) {
   EXPECT_TRUE(logger->should_log(spdlog::level::critical));
 
   // Restore default for subsequent tests.
-  jaql::infra::configure_logging(spdlog::level::info);
+  configure_logging(spdlog::level::info);
 }
 
 // ---- configure_logging: subsequent loggers ------------------------------------
@@ -69,12 +72,12 @@ TEST(Logger, ConfigureLogging_ChangesApplyToSubsequentLoggers) {
   std::ostringstream oss;
   auto sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(oss);
 
-  jaql::infra::configure_logging(spdlog::level::debug, sink);
-  auto logger_a = jaql::infra::get_logger(name_a);
+  configure_logging(spdlog::level::debug, sink);
+  auto logger_a = get_logger(name_a);
   EXPECT_EQ(logger_a->level(), spdlog::level::debug);
 
-  jaql::infra::configure_logging(spdlog::level::err, sink);
-  auto logger_b = jaql::infra::get_logger(name_b);
+  configure_logging(spdlog::level::err, sink);
+  auto logger_b = get_logger(name_b);
   EXPECT_EQ(logger_b->level(), spdlog::level::err);
 
   // logger_a was created before the second configure_logging call; its level
@@ -82,5 +85,5 @@ TEST(Logger, ConfigureLogging_ChangesApplyToSubsequentLoggers) {
   EXPECT_EQ(logger_a->level(), spdlog::level::debug);
 
   // Restore default for subsequent tests.
-  jaql::infra::configure_logging(spdlog::level::info);
+  configure_logging(spdlog::level::info);
 }
