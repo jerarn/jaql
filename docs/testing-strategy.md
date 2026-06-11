@@ -90,7 +90,7 @@ TEST(ApproxEqual, SubnormalValues_DoesNotReturnNaN)
 TEST(DiscountFactor, NegativeTimeReturnsError) {
     auto result = discount_factor(YearFraction{-1.0}, Rate{0.05});
     ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error().code, Error::Code::InvalidArgument);
+    EXPECT_EQ(result.error().code(), Code::InvalidArgument);
 }
 ```
 

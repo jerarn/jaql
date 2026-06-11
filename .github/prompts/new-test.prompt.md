@@ -43,7 +43,7 @@ TEST_F(<ClassName>Test, <Method>_<Scenario>_<ExpectedOutcome>) {
 TEST_F(<ClassName>Test, <Method>_<ErrorScenario>_ReturnsError) {
     auto result = /* call that should fail */;
     ASSERT_FALSE(result.has_value());
-    EXPECT_EQ(result.error().code, Error::Code::<ExpectedCode>);
+    EXPECT_EQ(result.error().code(), Code::<ExpectedCode>);
 }
 
 // --- Compile-time invariants ---
@@ -66,7 +66,7 @@ static_assert(!std::is_convertible_v<double, MyStrongType>,
    - `JAQL_EXPECT_NEAR_REL(actual, expected, rel_tolerance)` for scale-varying results.
 5. Use `static_assert` to verify compile-time type constraints (implicit conversion,
    move semantics, triviality, etc.).
-6. Use `ASSERT_TRUE(result.has_value()) << result.error().message;` before dereferencing
+6. Use `ASSERT_TRUE(result.has_value()) << result.error().message();` before dereferencing
    a `Result<T>` in a test — a failing `ASSERT` stops the test and prints the error.
 7. No `using namespace` at file scope. Use the full `jaql::<module>::` prefix or
    a local `using` inside the test body.

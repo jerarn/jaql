@@ -25,7 +25,7 @@ Full reference: [docs/coding-standards.md](docs/coding-standards.md)
 
 ## Error Handling
 
-- Return `Result<T>` (`tl::expected<T, jaql::Error>`), always `[[nodiscard]]`.
+- Return `jaql::core::Result<T>` (`tl::expected<T, jaql::core::Error>`), always `[[nodiscard]]`.
 - Propagate with `.map()` / `.and_then()` — never swallow errors.
 - No throws for domain failures; exceptions for programmer errors only.
 

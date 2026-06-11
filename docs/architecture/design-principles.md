@@ -10,7 +10,7 @@ over a sustained engineering timeline.
 
 ### Principle
 
-JAQL uses `Result<T>` (an alias for `tl::expected<T, jaql::Error>`) as the primary error
+JAQL uses `jaql::core::Result<T>` (an alias for `tl::expected<T, jaql::core::Error>`) as the primary error
 propagation mechanism for operations that can fail in well-defined ways. C++ exceptions
 are reserved for truly exceptional, unrecoverable situations (programmer errors, system
 failures).
@@ -36,7 +36,7 @@ auto discount_factor(YearFraction t, Rate r) noexcept -> Result<double>;
 // Caller must handle both cases
 auto df_result = discount_factor(t, r);
 if (!df_result) {
-    log_error(df_result.error().message);
+    log_error(df_result.error().message());
     return tl::unexpected(df_result.error());  // propagate
 }
 double df = *df_result;
@@ -56,7 +56,7 @@ Exceptions are appropriate for:
   function instead and keep constructors non-throwing.
 
 Exceptions are **not** appropriate for:
-- Missing market data (return `Result<T>` with `Error::Code::MarketDataNotFound`).
+- Missing market data (return `Result<T>` with `jaql::core::Code::NotFound`).
 - Curve extrapolation out of range (return `Result<T>`).
 - Numerical convergence failure (return `Result<T>`).
 

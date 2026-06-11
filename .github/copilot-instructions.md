@@ -34,7 +34,7 @@ link to the relevant doc when fuller context is needed.
 
 ## Error Handling
 
-- Functions that can fail return `Result<T>` — an alias for `tl::expected<T, jaql::Error>`.
+- Functions that can fail return `jaql::core::Result<T>` — an alias for `tl::expected<T, jaql::core::Error>`.
 - All `Result<T>`-returning functions are `[[nodiscard]]`.
 - Propagate errors explicitly — never swallow them silently.
 - Chain with `.map()` and `.and_then()`.

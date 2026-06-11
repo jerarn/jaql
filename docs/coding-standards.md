@@ -131,10 +131,12 @@ class PricingEngine {
 
 ## Error Handling
 
-Functions that can fail in a recoverable, domain-meaningful way return `Result<T>`:
+Functions that can fail in a recoverable, domain-meaningful way return `jaql::core::Result<T>`:
 
 ```cpp
-using Result<T> = tl::expected<T, jaql::Error>;
+#include <jaql/core/result.hpp>
+
+// jaql::core::Result<T> aliases tl::expected<T, jaql::core::Error>
 ```
 
 - All `Result<T>`-returning functions are `[[nodiscard]]`.
