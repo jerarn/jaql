@@ -1,5 +1,7 @@
-# Add test executables here as sources become available:
-#
-#   add_executable(test_<module> test_something.cpp)
-#   target_link_libraries(test_<module> PRIVATE jaql::<module> GTest::gtest_main)
-#   gtest_discover_tests(test_<module>)
+add_executable(test_core_error test_error.cpp)
+target_link_libraries(test_core_error PRIVATE jaql::core GTest::gtest_main)
+gtest_discover_tests(test_core_error)
+
+add_executable(test_core_result test_result.cpp)
+target_link_libraries(test_core_result PRIVATE jaql::core GTest::gtest_main)
+gtest_discover_tests(test_core_result)
