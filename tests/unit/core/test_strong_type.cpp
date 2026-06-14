@@ -18,14 +18,13 @@ struct CounterTag {};
 
 using PlainRate = StrongType<RateTag, double>;
 using Rate = StrongType<RateTag, double, Arithmetic, Comparable, Hashable, Formattable, Scalable,
-                       Incrementable>;
+                        Incrementable>;
 using Spread = StrongType<SpreadTag, double, Comparable>;
 using Counter = StrongType<CounterTag, int, Incrementable, Comparable>;
 
 static_assert(!std::is_convertible_v<double, PlainRate>,
               "StrongType must not be implicitly constructible from underlying type");
-static_assert(!std::is_constructible_v<Rate, Spread>,
-              "Rate must not be constructible from Spread");
+static_assert(!std::is_constructible_v<Rate, Spread>, "Rate must not be constructible from Spread");
 static_assert(sizeof(Rate) == sizeof(double));
 static_assert(alignof(Rate) == alignof(double));
 
