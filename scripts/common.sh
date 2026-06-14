@@ -43,6 +43,56 @@ jaql_preset_build_type() {
     esac
 }
 
+# Returns 0 when the preset targets Clang.
+jaql_preset_uses_clang() {
+    local preset="$1"
+
+    case "${preset}" in
+        clang-debug|clang-release|ci-clang-debug|ci-clang-release)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+# Exports CC/CXX for Clang presets when not already set by the caller.
+jaql_configure_preset_toolchain() {
+    local preset="$1"
+    local host_profile="$2"
+
+    if ! jaql_preset_uses_clang "${preset}"; then
+        return 0
+    fi
+
+    if [[ -z "${CC:-}" ]]; then
+        CC="$(jaql_find_first clang-17 clang || true)"
+        [[ -n "${CC}" ]] || jaql_die "clang preset '${preset}' requires Clang. Install clang-17 or set CC/CXX."
+        export CC
+    fi
+
+    if [[ -z "${CXX:-}" ]]; then
+        CXX="$(jaql_find_first clang++-17 clang++ || true)"
+        [[ -n "${CXX}" ]] || jaql_die "clang preset '${preset}' requires Clang. Install clang++-17 or set CC/CXX."
+        export CXX
+    fi
+
+    if ! "${CXX}" --version 2>/dev/null | grep -qi 'clang'; then
+        jaql_die "clang preset '${preset}' requires Clang, but CXX (${CXX}) is not Clang. Set CXX=clang++-17 and retry."
+    fi
+
+    local host_profile_resolved
+    host_profile_resolved="$(jaql_resolve_conan_profile "${host_profile}")"
+    if [[ -f "${host_profile_resolved}" ]] && grep -q '^compiler\.libcxx=libc++' "${host_profile_resolved}"; then
+        if ! printf 'int main(){}' | "${CXX}" -stdlib=libc++ -x c++ - -o /dev/null 2>/dev/null; then
+            jaql_die "clang preset '${preset}' uses libc++ (see ${host_profile}). Install libc++-17-dev and libc++abi-17-dev, or pass --host-profile with compiler.libcxx=libstdc++11."
+        fi
+    fi
+
+    printf 'Using Clang toolchain: CC=%s CXX=%s\n' "${CC}" "${CXX}"
+}
+
 # Returns the default Conan host profile for a CMake preset.
 jaql_preset_host_profile() {
     local preset="$1"

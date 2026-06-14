@@ -74,6 +74,8 @@ if [[ "${build_profile_resolved}" != "${host_profile_resolved}" ]]; then
     jaql_ensure_conan_profile "${build_profile}"
 fi
 
+jaql_configure_preset_toolchain "${preset}" "${host_profile}"
+
 mkdir -p "${build_dir}"
 
 if [[ -f "${user_presets_file}" ]]; then

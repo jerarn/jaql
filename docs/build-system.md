@@ -302,6 +302,7 @@ conan graph info . -pr:h=profiles/ci/gcc13 -s build_type=Debug
 |---------|--------------|-----|
 | `conan_toolchain.cmake` not found | CMake configured before Conan install | Run `./scripts/bootstrap.sh --preset <preset>` |
 | ABI/link errors with Clang preset | Wrong Conan profile (GCC binaries with Clang compiler) | Use `--preset clang-debug` (auto-selects `profiles/ci/clang17-libcxx`) or pass `--host-profile profiles/ci/clang17-libcxx` |
+| `c++: error: unrecognized command-line option '-stdlib=libc++'` during Conan build | Clang preset used but `CC`/`CXX` still point at GCC (`/usr/bin/c++`) | Run `./scripts/bootstrap.sh --preset clang-debug` (auto-sets `clang-17`/`clang++-17`), or export `CC`/`CXX` manually; install `libc++-17-dev` and `libc++abi-17-dev` |
 | Lockfile version mismatch after dep bump | Stale `conan.lock` | Regenerate lockfile (see above) |
 | `'settings.compiler' value not defined` | Invalid profile field order | Set `compiler=` before `compiler.cppstd=` in profile files |
 | Wrong cache used / stale packages | Running Conan outside repo root | Run commands from repo root so `.conanrc` is found; check `conan config home` |

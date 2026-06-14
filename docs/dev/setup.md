@@ -8,7 +8,7 @@ Install required tools:
 
 ```bash
 sudo apt update
-sudo apt install -y cmake ninja-build gcc-13 g++-13 clang-17 clang-format-17 clang-tidy-17 lcov python3-pip
+sudo apt install -y cmake ninja-build gcc-13 g++-13 clang-17 clang-format-17 clang-tidy-17 libc++-17-dev libc++abi-17-dev lcov python3-pip
 python3 -m pip install --user 'conan>=2.4,<3'
 ```
 
@@ -47,6 +47,9 @@ Expected result:
 - Tests pass
 
 ## Alternate Presets
+
+Clang presets use `profiles/ci/clang17-libcxx` (Clang 17 + libc++). Bootstrap sets
+`CC`/`CXX` to `clang-17`/`clang++-17` automatically when they are unset, matching CI.
 
 ```bash
 ./scripts/bootstrap.sh --preset clang-debug
