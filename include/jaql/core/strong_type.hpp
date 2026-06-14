@@ -210,16 +210,16 @@ template <typename Tag, typename T, template <typename> class... Policies>
   requires(
       jaql::core::detail::strong_type_has_policy_v<jaql::core::Formattable, Tag, T, Policies...>)
 struct formatter<jaql::core::StrongType<Tag, T, Policies...>, char> {
-  formatter<T, char> underlying_{};
+  formatter<T, char> underlying{};
 
   constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
-    return underlying_.parse(ctx);
+    return underlying.parse(ctx);
   }
 
   template <typename FormatContext>
   auto format(const jaql::core::StrongType<Tag, T, Policies...>& value, FormatContext& ctx) const ->
       typename FormatContext::iterator {
-    return underlying_.format(value.value(), ctx);
+    return underlying.format(value.value(), ctx);
   }
 };
 
