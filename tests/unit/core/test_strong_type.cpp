@@ -69,7 +69,9 @@ TEST(StrongType, Scalable_ScalarMultiplicationAndDivision) {
 }
 
 TEST(StrongType, Hashable_EnablesUnorderedMapLookup) {
-  std::unordered_map<Rate, int> rates{{Rate{0.05}, 1}, {Rate{0.10}, 2}};
+  std::unordered_map<Rate, int> rates;
+  rates.emplace(Rate{0.05}, 1);
+  rates.emplace(Rate{0.10}, 2);
 
   EXPECT_EQ(rates.at(Rate{0.05}), 1);
   EXPECT_EQ(rates.at(Rate{0.10}), 2);
