@@ -24,12 +24,13 @@ inline constexpr bool is_same_policy_v<Policy, Policy> = true;
 /// @brief Detects whether @c Policy is listed among @c StrongType mix-ins.
 template <template <typename> class Policy, typename Tag, typename T,
           template <typename> class... PolicyList>
+inline constexpr bool strong_type_has_policy_v =
+    sizeof...(PolicyList) != 0 && (is_same_policy_v<PolicyList, Policy> || ...);
+
+template <template <typename> class Policy, typename Tag, typename T,
+          template <typename> class... PolicyList>
 consteval auto strong_type_has_policy() -> bool {
-  if constexpr (sizeof...(PolicyList) == 0) {
-    return false;
-  } else {
-    return (is_same_policy_v<PolicyList, Policy> || ...);
-  }
+  return strong_type_has_policy_v<Policy, Tag, T, PolicyList...>;
 }
 
 }  // namespace detail
@@ -66,14 +67,13 @@ template <typename Derived>
 class Comparable {
  public:
   /// @brief Compares two strong-type values.
-  [[nodiscard]] friend constexpr auto operator<=>(const Derived& lhs,
-                                                  const Derived& rhs) noexcept {
+  [[nodiscard]] friend constexpr auto operator<=>(const Derived& lhs, const Derived& rhs) noexcept {
     return lhs.value() <=> rhs.value();
   }
 
   /// @brief Tests two strong-type values for equality.
-  [[nodiscard]] friend constexpr auto operator==(const Derived& lhs,
-                                                 const Derived& rhs) noexcept -> bool {
+  [[nodiscard]] friend constexpr auto operator==(const Derived& lhs, const Derived& rhs) noexcept
+      -> bool {
     return lhs.value() == rhs.value();
   }
 };
@@ -200,20 +200,26 @@ template <typename Tag, typename T, template <typename> class... Policies>
   requires(jaql::core::detail::strong_type_has_policy<jaql::core::Hashable, Tag, T, Policies...>())
 struct hash<jaql::core::StrongType<Tag, T, Policies...>> {
   /// @brief Hashes the underlying value of a @c Hashable strong type.
-  [[nodiscard]] auto operator()(const jaql::core::StrongType<Tag, T, Policies...>& value) const
-      noexcept -> size_t {
+  [[nodiscard]] auto operator()(
+      const jaql::core::StrongType<Tag, T, Policies...>& value) const noexcept -> size_t {
     return hash<T>{}(value.value());
   }
 };
 
 template <typename Tag, typename T, template <typename> class... Policies>
-  requires(jaql::core::detail::strong_type_has_policy<jaql::core::Formattable, Tag, T,
-                                                      Policies...>())
-struct formatter<jaql::core::StrongType<Tag, T, Policies...>> : formatter<T> {
-  /// @brief Formats a @c Formattable strong type via its underlying value.
-  auto format(const jaql::core::StrongType<Tag, T, Policies...>& value, format_context& ctx) const
-      -> format_context::iterator {
-    return formatter<T>::format(value.value(), ctx);
+  requires(
+      jaql::core::detail::strong_type_has_policy_v<jaql::core::Formattable, Tag, T, Policies...>)
+struct formatter<jaql::core::StrongType<Tag, T, Policies...>, char> {
+  formatter<T, char> underlying_{};
+
+  constexpr auto parse(format_parse_context& ctx) -> format_parse_context::iterator {
+    return underlying_.parse(ctx);
+  }
+
+  template <typename FormatContext>
+  auto format(const jaql::core::StrongType<Tag, T, Policies...>& value, FormatContext& ctx) const ->
+      typename FormatContext::iterator {
+    return underlying_.format(value.value(), ctx);
   }
 };
 
