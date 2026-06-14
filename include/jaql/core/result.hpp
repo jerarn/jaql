@@ -18,7 +18,7 @@ using Result = tl::expected<T, Error>;
 /// @brief Creates a successful void result.
 ///
 /// @return  A successful @c Result<void>.
-[[nodiscard]] constexpr auto ok() noexcept -> Result<void> { return {}; }
+[[nodiscard]] auto ok() noexcept -> Result<void> { return {}; }
 
 /// @brief Creates a successful result carrying @p value.
 ///

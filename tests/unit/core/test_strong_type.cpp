@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include <compare>
 #include <concepts>
 #include <format>
 #include <string>
@@ -53,9 +54,9 @@ TEST(StrongType, Comparable_ThreeWayComparisonOrdersValues) {
   const Rate lower{0.02};
   const Rate higher{0.05};
 
-  EXPECT_LT(lower <=> higher, 0);
-  EXPECT_GT(higher <=> lower, 0);
-  EXPECT_EQ(lower <=> lower, 0);
+  EXPECT_TRUE(std::is_lt(lower <=> higher));
+  EXPECT_TRUE(std::is_gt(higher <=> lower));
+  EXPECT_TRUE(std::is_eq(lower <=> lower));
   EXPECT_TRUE(lower == lower);
   EXPECT_FALSE(lower == higher);
 }
@@ -99,8 +100,8 @@ TEST(StrongType, Incrementable_PrefixAndPostfixOperators) {
 }
 
 TEST(StrongType, MissingArithmeticPolicy_OperatorPlusIsIllformed) {
-  static_assert(!requires(Spread lhs, Spread rhs) { lhs + rhs; },
-                "Spread without Arithmetic must not support operator+");
+  static_assert(!detail::strong_type_has_policy<Arithmetic, SpreadTag, double, Comparable>(),
+                "Spread without Arithmetic must not enable operator+");
 }
 
 TEST(StrongType, MissingHashablePolicy_HashSpecialisationIsAbsent) {
@@ -109,18 +110,18 @@ TEST(StrongType, MissingHashablePolicy_HashSpecialisationIsAbsent) {
 }
 
 TEST(StrongType, MissingFormattablePolicy_FormatIsIllformed) {
-  static_assert(!requires(const Spread spread) { std::format("{}", spread); },
-                "Spread without Formattable must not support std::format");
+  static_assert(!detail::strong_type_has_policy<Formattable, SpreadTag, double, Comparable>(),
+                "Spread without Formattable must not enable std::format");
 }
 
 TEST(StrongType, MissingScalablePolicy_ScalarMultiplyIsIllformed) {
-  static_assert(!requires(Spread spread) { spread * 2.0; },
-                "Spread without Scalable must not support scalar multiplication");
+  static_assert(!detail::strong_type_has_policy<Scalable, SpreadTag, double, Comparable>(),
+                "Spread without Scalable must not enable scalar multiplication");
 }
 
 TEST(StrongType, MissingIncrementablePolicy_IncrementIsIllformed) {
-  static_assert(!requires(Spread spread) { ++spread; },
-                "Spread without Incrementable must not support operator++");
+  static_assert(!detail::strong_type_has_policy<Incrementable, SpreadTag, double, Comparable>(),
+                "Spread without Incrementable must not enable operator++");
 }
 
 }  // namespace jaql::core::test
