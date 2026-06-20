@@ -9,3 +9,7 @@ gtest_discover_tests(test_core_result)
 add_executable(test_core_strong_type test_strong_type.cpp)
 target_link_libraries(test_core_strong_type PRIVATE jaql::core GTest::gtest_main)
 gtest_discover_tests(test_core_strong_type)
+
+add_executable(test_core_assert test_assert.cpp)
+target_link_libraries(test_core_assert PRIVATE jaql::core GTest::gtest_main)
+gtest_discover_tests(test_core_assert)
