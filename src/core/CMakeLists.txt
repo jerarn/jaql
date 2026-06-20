@@ -1,6 +1,7 @@
 jaql_add_module(
     core
     SOURCES
+        date.cpp
         error.cpp
     DEPS
         jaql::infra
