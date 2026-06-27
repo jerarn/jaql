@@ -12,6 +12,21 @@ using jaql::core::throwing_handler;
 using jaql::core::ViolationHandler;
 using jaql::core::ViolationInfo;
 
+// Mirror the activation conditions of the assertion macros in <jaql/core/assert.hpp>
+// so the expectations track the build configuration. JAQL_ASSERT is stripped under
+// NDEBUG; JAQL_EXPECTS/JAQL_ENSURES additionally remain active when contracts are enabled.
+#if !defined(NDEBUG)
+#define JAQL_TEST_ASSERT_ACTIVE 1
+#else
+#define JAQL_TEST_ASSERT_ACTIVE 0
+#endif
+
+#if !defined(NDEBUG) || defined(JAQL_ENABLE_CONTRACTS)
+#define JAQL_TEST_CONTRACTS_ACTIVE 1
+#else
+#define JAQL_TEST_CONTRACTS_ACTIVE 0
+#endif
+
 namespace {
 
 struct ViolationRecorder {
@@ -83,11 +98,15 @@ TEST(Assert, FailingCondition_InvokesHandler) {
 
   JAQL_ASSERT(false, "debug check");
 
+#if JAQL_TEST_ASSERT_ACTIVE
   ASSERT_TRUE(recorder.invoked);
   EXPECT_EQ(recorder.last.expression, "false");
   EXPECT_EQ(recorder.last.message, "debug check");
   EXPECT_FALSE(std::string{recorder.last.location.file_name()}.empty());
   EXPECT_GT(recorder.last.location.line(), 0U);
+#else
+  EXPECT_FALSE(recorder.invoked);
+#endif
 }
 
 TEST(Assert, ThrowingHandler_FailedAssert_ThrowsAssertionViolation) {
@@ -95,7 +114,9 @@ TEST(Assert, ThrowingHandler_FailedAssert_ThrowsAssertionViolation) {
 
   try {
     JAQL_ASSERT(false, "should throw");
+#if JAQL_TEST_ASSERT_ACTIVE
     FAIL() << "JAQL_ASSERT(false) did not throw";
+#endif
   } catch (const AssertionViolation& error) {
     EXPECT_EQ(error.info().expression, "false");
     EXPECT_EQ(error.info().message, "should throw");
@@ -111,9 +132,13 @@ TEST(Assert, Expects_FailingCondition_InvokesHandler) {
 
   JAQL_EXPECTS(false, "precondition");
 
+#if JAQL_TEST_CONTRACTS_ACTIVE
   ASSERT_TRUE(recorder.invoked);
   EXPECT_EQ(recorder.last.expression, "false");
   EXPECT_EQ(recorder.last.message, "precondition");
+#else
+  EXPECT_FALSE(recorder.invoked);
+#endif
 }
 
 TEST(Assert, Ensures_FailingCondition_InvokesHandler) {
@@ -123,9 +148,13 @@ TEST(Assert, Ensures_FailingCondition_InvokesHandler) {
 
   JAQL_ENSURES(false, "postcondition");
 
+#if JAQL_TEST_CONTRACTS_ACTIVE
   ASSERT_TRUE(recorder.invoked);
   EXPECT_EQ(recorder.last.expression, "false");
   EXPECT_EQ(recorder.last.message, "postcondition");
+#else
+  EXPECT_FALSE(recorder.invoked);
+#endif
 }
 
 TEST(Assert, ViolationHandlerGuard_RestoresPreviousHandler) {
