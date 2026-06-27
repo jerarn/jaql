@@ -179,6 +179,38 @@ jaql_require_compile_commands() {
     printf '%s\n' "${build_dir}"
 }
 
+# Prints the translation-unit paths recorded in a compile database, normalized to
+# repository-relative form (one per line). Prefers python3 for robust JSON parsing and
+# falls back to a best-effort grep/sed extractor when python3 is unavailable.
+jaql_compile_db_files() {
+    local build_dir="$1"
+    local repo_root db
+    repo_root="$(jaql_repo_root)"
+    db="${build_dir}/compile_commands.json"
+    [[ -f "${db}" ]] || return 0
+
+    if command -v python3 >/dev/null 2>&1; then
+        python3 - "${db}" "${repo_root}" <<'PY'
+import json, os, sys
+
+db_path, repo_root = sys.argv[1], sys.argv[2]
+with open(db_path, encoding="utf-8") as handle:
+    entries = json.load(handle)
+for entry in entries:
+    path = entry.get("file", "")
+    if not path:
+        continue
+    if not os.path.isabs(path):
+        path = os.path.normpath(os.path.join(entry.get("directory", ""), path))
+    print(os.path.relpath(path, repo_root))
+PY
+    else
+        grep -oE '"file"[[:space:]]*:[[:space:]]*"[^"]+"' "${db}" \
+            | sed -E 's/.*"file"[[:space:]]*:[[:space:]]*"([^"]+)"/\1/' \
+            | sed -E "s#^${repo_root}/##"
+    fi
+}
+
 # Resolves a Conan profile to an absolute path when it lives in the repository.
 jaql_resolve_conan_profile() {
     local profile_name="$1"

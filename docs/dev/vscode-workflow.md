@@ -63,3 +63,43 @@ Use a filter such as:
 > otherwise the script exits early asking you to bootstrap. clang-tidy findings are
 > reported as errors by design (`.clang-tidy` sets `WarningsAsErrors: "*"`) — a non-zero
 > exit means there are diagnostics to review, not that the task is broken.
+
+### Faster lint runs (optional)
+
+`./scripts/lint.sh` lints every in-scope translation unit in parallel by default. Two
+opt-in flags speed up the inner-loop; the default behavior (and CI) is unchanged.
+
+- `--changed` lints only in-scope `.cpp` changed in your working tree (staged, unstaged,
+  and untracked) versus `HEAD`:
+
+```bash
+./scripts/lint.sh --changed
+```
+
+- `--since <ref>` lints only in-scope `.cpp` changed versus the merge-base with `<ref>`,
+  e.g. to mirror what a pull request would check:
+
+```bash
+./scripts/lint.sh --since origin/main
+```
+
+- `--cache` reuses clang-tidy results for unchanged translation units across runs via
+  [clang-tidy-cache](https://github.com/matus-chochlik/ctcache). Install it once
+  (`pip install clang-tidy-cache`), then:
+
+```bash
+./scripts/lint.sh --cache            # whole tree, cached
+./scripts/lint.sh --cache --changed  # changed files, cached
+```
+
+Notes:
+
+- `--changed` and `--since` are mutually exclusive.
+- A diff that touches any header falls back to a full run, because a header change can
+  affect many translation units.
+- Changed `.cpp` files not yet in the compile database (e.g. a brand-new file) are
+  skipped with a warning — reconfigure with `cmake --preset <preset>` to include them.
+- `--since origin/main` may need a prior `git fetch` if that ref is not local.
+- The cache lives under `~/.cache/ctcache` (salted by the active `.clang-tidy` config
+  and clang-tidy version, so config/toolchain changes invalidate stale entries). Clear
+  it by deleting that directory or simply omit `--cache`.
