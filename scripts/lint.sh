@@ -40,7 +40,12 @@ while (($# > 0)); do
 done
 
 repo_root="$(jaql_repo_root)"
-mapfile -t files < <(git -C "${repo_root}" ls-files -- '*.cpp')
+# Exclude benchmarks/: they are only compiled under the `benchmark` preset, so they
+# are absent from the default preset's compile_commands.json. Linting a file that is
+# not in the compile database makes clang-tidy fall back to default flags, which
+# fails to find google-benchmark headers ('benchmark/benchmark.h' file not found)
+# and emits spurious diagnostics on macro-generated benchmark code.
+mapfile -t files < <(git -C "${repo_root}" ls-files -- '*.cpp' ':(exclude)benchmarks/**')
 if ((${#files[@]} == 0)); then
     printf 'No tracked C++ translation units found.\n'
     exit 0
@@ -65,11 +70,21 @@ if [[ -n "${_cxx}" ]]; then
     fi
 fi
 
-printf 'Running %s with compile database %s\n' "${clang_tidy_bin}" "${build_dir}/compile_commands.json"
+jobs="$(nproc 2>/dev/null || echo 1)"
+printf 'Running %s across %d translation unit(s) (-j %s) with compile database %s\n' \
+    "${clang_tidy_bin}" "${#files[@]}" "${jobs}" "${build_dir}/compile_commands.json"
+
+# clang-tidy processes its file arguments sequentially, so a single invocation over
+# every translation unit pins the run to one core and dominates the wall time. Fan the
+# units out across cores instead: each is an independent invocation sharing the same
+# compile database and arguments. xargs exits non-zero if any unit fails, which
+# `set -o pipefail` + `set -e` turn into a script failure.
 (
     cd -- "${repo_root}"
-    "${clang_tidy_bin}" -p "${build_dir}" \
+    printf '%s\0' "${files[@]}" | xargs -0 -P "${jobs}" -n 1 \
+        "${clang_tidy_bin}" -p "${build_dir}" \
         --header-filter="^${repo_root}/(include|src)/.*" \
+        --quiet \
         "${gcc_install_args[@]}" \
-        "${extra_args[@]}" "${files[@]}"
+        "${extra_args[@]}"
 )

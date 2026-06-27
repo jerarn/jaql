@@ -56,3 +56,10 @@ Use a filter such as:
 3. Run `JAQL: Test`
 4. Debug failing tests via launch profile
 5. Run `JAQL: Format` and `JAQL: Lint` before committing
+
+> **Lint prerequisite:** `JAQL: Lint` (`./scripts/lint.sh`) runs clang-tidy against the
+> preset's compile database, so it needs a configured build first. Run `JAQL: Bootstrap`
+> (or `JAQL: Build`) at least once so `build/<preset>/compile_commands.json` exists;
+> otherwise the script exits early asking you to bootstrap. clang-tidy findings are
+> reported as errors by design (`.clang-tidy` sets `WarningsAsErrors: "*"`) — a non-zero
+> exit means there are diagnostics to review, not that the task is broken.

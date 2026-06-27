@@ -40,6 +40,7 @@ struct ViolationHandlerGuard {
   ViolationHandlerGuard(ViolationHandlerGuard&&) = delete;
   auto operator=(ViolationHandlerGuard&&) -> ViolationHandlerGuard& = delete;
 
+ private:
   ViolationHandler previous_;
 };
 
@@ -59,6 +60,7 @@ struct RecorderGuard {
   RecorderGuard(RecorderGuard&&) = delete;
   auto operator=(RecorderGuard&&) -> RecorderGuard& = delete;
 
+ private:
   ViolationRecorder& recorder_;
 };
 

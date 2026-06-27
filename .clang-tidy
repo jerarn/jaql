@@ -21,6 +21,12 @@ HeaderFilterRegex: ".*(include/jaql|src)/.*"
 
 # Enforce JAQL naming conventions (docs/coding-standards.md § Naming Conventions).
 CheckOptions:
+  # JAQL_ASSERT/JAQL_EXPECTS/JAQL_ENSURES (and their detail helpers) must be macros:
+  # they capture the stringified condition (#condition) and std::source_location at the
+  # call site, which a constexpr function cannot do. Exempt the documented JAQL_ macro
+  # convention rather than annotating each definition.
+  - key:   cppcoreguidelines-macro-usage.AllowedRegexp
+    value: "^JAQL_"
   - key:   readability-identifier-naming.ClassCase
     value: CamelCase
   - key:   readability-identifier-naming.StructCase

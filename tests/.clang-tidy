@@ -1,0 +1,19 @@
+---
+# Test-only relaxations layered on top of the repository-root .clang-tidy.
+# Production code keeps the full check set; these adjustments cover patterns that are
+# legitimate in GoogleTest-based unit tests but not in library code.
+InheritParentConfig: true
+
+# Tests bridge JAQL's function-pointer violation handlers to per-test recorders, which
+# requires file-scope mutable state (a capturing lambda cannot convert to a function
+# pointer). Allow non-const globals in test translation units only.
+Checks: >
+  -cppcoreguidelines-avoid-non-const-global-variables
+
+CheckOptions:
+  # GoogleTest's EXPECT_*/ASSERT_* macros expand into branch-heavy code that inflates
+  # cognitive-complexity scores for otherwise simple test bodies. Ignore complexity
+  # contributed by macro expansions so the metric reflects the test's own control flow.
+  - key:   readability-function-cognitive-complexity.IgnoreMacros
+    value: "true"
+...

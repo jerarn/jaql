@@ -18,8 +18,8 @@ auto days_from_civil(int year, int month, int day) noexcept -> int {
   year -= month <= 2 ? 1 : 0;
   const int era = (year >= 0 ? year : year - 399) / 400;
   const int yoe = year - era * 400;
-  const int mp = month > 2 ? month - 3 : month + 9;
-  const int doy = (153 * mp + 2) / 5 + day - 1;
+  const int shifted_month = month > 2 ? month - 3 : month + 9;
+  const int doy = (153 * shifted_month + 2) / 5 + day - 1;
   const int doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
   return era * 146097 + doe - 719468;
 }
@@ -40,9 +40,9 @@ auto civil_from_days(int serial) noexcept -> YearMonthDay {
   const int yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
   const int year = yoe + era * 400;
   const int doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-  const int mp = (5 * doy + 2) / 153;
-  const int day = doy - (153 * mp + 2) / 5 + 1;
-  const int month = mp < 10 ? mp + 3 : mp - 9;
+  const int shifted_month = (5 * doy + 2) / 153;
+  const int day = doy - (153 * shifted_month + 2) / 5 + 1;
+  const int month = shifted_month < 10 ? shifted_month + 3 : shifted_month - 9;
   return {year + (month <= 2 ? 1 : 0), month, day};
 }
 
@@ -60,7 +60,7 @@ auto days_in_month(int month, int year) -> int {
   if (month == 2 && is_leap_year(year)) {
     return 29;
   }
-  return lengths[static_cast<std::size_t>(month)];
+  return lengths.at(static_cast<std::size_t>(month));
 }
 
 auto Date::from_ymd(int year, int month, int day) -> Result<Date> {
