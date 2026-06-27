@@ -8,12 +8,19 @@ namespace jaql::core {
 
 /// @brief Day of the week, ordered Monday through Sunday (ISO 8601 ordering).
 enum class DayOfWeek {
+  /// @brief Monday.
   Monday,
+  /// @brief Tuesday.
   Tuesday,
+  /// @brief Wednesday.
   Wednesday,
+  /// @brief Thursday.
   Thursday,
+  /// @brief Friday.
   Friday,
+  /// @brief Saturday.
   Saturday,
+  /// @brief Sunday.
   Sunday,
 };
 
@@ -65,18 +72,23 @@ class Date {
   [[nodiscard]] static auto from_serial(int serial) noexcept -> Date;
 
   /// @brief Returns the Gregorian calendar year.
+  /// @return Four-digit calendar year.
   [[nodiscard]] auto year() const -> int;
 
   /// @brief Returns the month in the range [1, 12].
+  /// @return Month number in the range [1, 12].
   [[nodiscard]] auto month() const -> int;
 
   /// @brief Returns the day of the month.
+  /// @return Day of month in the range [1, 31].
   [[nodiscard]] auto day() const -> int;
 
   /// @brief Returns the serial number (days since 1970-01-01).
+  /// @return Days since the Unix epoch.
   [[nodiscard]] auto serial() const noexcept -> int { return serial_; }
 
   /// @brief Returns the day of the week.
+  /// @return Day of the week for this date.
   [[nodiscard]] auto day_of_week() const -> DayOfWeek;
 
   /// @brief Returns a new date shifted by @p days calendar days.
@@ -105,6 +117,9 @@ class Date {
   [[nodiscard]] friend auto operator<=>(const Date& lhs, const Date& rhs) noexcept = default;
 
   /// @brief Returns the signed number of days from @p rhs to @p lhs.
+  /// @param lhs  Left-hand date.
+  /// @param rhs  Right-hand date.
+  /// @return     @p lhs.serial() minus @p rhs.serial().
   [[nodiscard]] friend auto operator-(const Date& lhs, const Date& rhs) noexcept -> int {
     return lhs.serial_ - rhs.serial_;
   }
@@ -118,11 +133,17 @@ class Date {
 /// @brief Abstract calendar deciding which dates are business days.
 class Calendar {
  public:
+  /// @brief Default-constructs a calendar.
   Calendar() = default;
+  /// @brief Copy-constructs a calendar.
   Calendar(const Calendar&) = default;
+  /// @brief Move-constructs a calendar.
   Calendar(Calendar&&) = default;
+  /// @brief Copy-assigns a calendar.
   auto operator=(const Calendar&) -> Calendar& = default;
+  /// @brief Move-assigns a calendar.
   auto operator=(Calendar&&) -> Calendar& = default;
+  /// @brief Destroys the calendar.
   virtual ~Calendar() = default;
 
   /// @brief Returns whether @p date is a business day.

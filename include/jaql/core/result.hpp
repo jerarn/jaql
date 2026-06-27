@@ -17,14 +17,14 @@ using Result = tl::expected<T, Error>;
 
 /// @brief Creates a successful void result.
 ///
-/// @return  A successful @c Result<void>.
+/// @return  A successful @c Result\<void\>.
 [[nodiscard]] inline auto ok() noexcept -> Result<void> { return {}; }
 
 /// @brief Creates a successful result carrying @p value.
 ///
 /// @tparam T     Value type of the result.
 /// @param value  Success value to store.
-/// @return       A successful @c Result<T> containing @p value.
+/// @return       A successful @c Result\<T\> containing @p value.
 template <typename T>
 [[nodiscard]] constexpr auto ok(T value) noexcept -> Result<T> {
   return std::move(value);
@@ -36,7 +36,7 @@ template <typename T>
 /// @tparam T         Value type of the result (defaults to @c void).
 /// @param message    Human-readable description of the failure.
 /// @param location   Call-site source location; defaults to the caller's location.
-/// @return           A failed @c Result<T> carrying the constructed @c Error.
+/// @return           A failed @c Result\<T\> carrying the constructed @c Error.
 template <Code C, typename T = void>
 [[nodiscard]] auto err(std::string message,
                        std::source_location location = std::source_location::current())
@@ -49,7 +49,7 @@ template <Code C, typename T = void>
 /// @tparam U      Target value type.
 /// @tparam T      Source value type.
 /// @param result  Result to cast.
-/// @return        A @c Result<U> with the converted value, or the original error.
+/// @return        A @c Result\<U\> with the converted value, or the original error.
 template <typename U, typename T>
 [[nodiscard]] auto result_cast(Result<T> result) -> Result<U> {
   if (!result) {
