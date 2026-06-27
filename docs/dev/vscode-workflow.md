@@ -12,9 +12,13 @@ Repository-level VS Code configuration lives in `.vscode/`.
 ## One-Time Setup
 
 1. Install recommended extensions when prompted.
-2. Run task: `JAQL: Bootstrap`.
-3. Run task: `JAQL: Build`.
-4. Run task: `JAQL: Test`.
+2. Install Conan — either `pip install --user 'conan>=2.4,<3'` or create a project
+   `.venv` and `pip install 'conan>=2.4,<3'` there (see [setup.md](setup.md)). Workspace
+   settings prepend `.venv/bin` to `PATH` in integrated terminals on Linux so bootstrap
+   tasks work without manual activation.
+3. Run task: `JAQL: Bootstrap`.
+4. Run task: `JAQL: Build`.
+5. Run task: `JAQL: Test`.
 
 ## Debugging
 

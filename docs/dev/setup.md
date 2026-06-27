@@ -9,8 +9,23 @@ Install required tools:
 ```bash
 sudo apt update
 sudo apt install -y cmake ninja-build gcc-13 g++-13 clang-17 clang-format-17 clang-tidy-17 libc++-17-dev libc++abi-17-dev lcov python3-pip
-python3 -m pip install --user 'conan>=2.4,<3'
 ```
+
+Install Conan 2 (required by `./scripts/bootstrap.sh`):
+
+```bash
+# Option A — quick start (works in any shell; ~/.local/bin must be on PATH)
+python3 -m pip install --user 'conan>=2.4,<3'
+
+# Option B — project virtualenv (recommended for VS Code/Cursor; .venv/ is gitignored)
+python3 -m venv .venv
+source .venv/bin/activate
+pip install 'conan>=2.4,<3'
+```
+
+With option B, activate the venv (`source .venv/bin/activate`) in shells outside the
+editor. VS Code/Cursor prepends `.venv/bin` to `PATH` in integrated terminals on Linux
+(see [vscode-workflow.md](vscode-workflow.md)).
 
 Bootstrap selects a Conan host profile from the CMake preset (see
 [docs/build-system.md](../build-system.md)). No manual `conan profile detect` is required

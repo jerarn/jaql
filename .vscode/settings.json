@@ -40,5 +40,12 @@
         "**/build/**": true,
         "**/.conan2/**": true
     },
-    "python-envs.defaultEnvManager": "ms-python.python:pyenv"
+    // Conan is installed via pip; a project .venv is optional (see docs/dev/setup.md).
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    // Prepend .venv/bin so integrated terminals and tasks find Conan when using a venv.
+    "terminal.integrated.env.linux": {
+        "PATH": "${workspaceFolder}/.venv/bin:${env:PATH}"
+    }
 }
