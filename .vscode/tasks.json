@@ -12,22 +12,6 @@
             "detail": "Install Conan dependencies and configure the default gcc-debug preset."
         },
         {
-            "label": "JAQL: Configure",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--preset",
-                "gcc-debug"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "detail": "Re-run CMake configure for the default gcc-debug preset."
-        },
-        {
             "label": "JAQL: Build",
             "type": "shell",
             "command": "cmake",
