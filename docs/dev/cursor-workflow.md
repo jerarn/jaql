@@ -2,6 +2,12 @@
 
 Cursor-specific configuration for JAQL lives alongside the VS Code workspace files in `.vscode/`.
 
+For C++ extensions, install **`anysphere.cpptools`** when prompted — it auto-installs
+clangd, CMake Tools, and CodeLLDB. You do not need to install those separately. Workspace
+settings in `.vscode/settings.json` (clangd arguments, format-on-save, CMake presets) apply
+to the auto-installed clangd extension. See [vscode-workflow.md](vscode-workflow.md) for
+the full extension matrix and one-time setup steps.
+
 ## Configuration Layout
 
 | Path | Purpose |

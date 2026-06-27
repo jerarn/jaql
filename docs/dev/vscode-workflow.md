@@ -9,6 +9,21 @@ Repository-level VS Code configuration lives in `.vscode/`.
 - `tasks.json`: bootstrap/configure/build/test/format/lint tasks
 - `launch.json`: C++ debug configurations
 
+## Recommended Extensions
+
+`.vscode/extensions.json` is written for both Cursor and VS Code. Each editor installs
+only the IDs it recognizes.
+
+| Editor | Install | Notes |
+|--------|---------|-------|
+| **Cursor** | `anysphere.cpptools` | Pulls in clangd, CMake Tools, and CodeLLDB automatically. Microsoft IntelliSense is not used; language features come from clangd via `compile_commands.json`. |
+| **VS Code** | `llvm-vs-code-extensions.vscode-clangd`, `ms-vscode.cmake-tools`, `ms-vscode.cpptools` | clangd handles completion and diagnostics; cpptools provides the `cppdbg` debugger used by `launch.json`. IntelliSense is disabled in workspace settings to avoid conflicting with clangd. |
+
+After bootstrap, clangd picks up `build/gcc-debug/compile_commands.json` (configured in
+`settings.json`). Until then, red squiggles and missing go-to-definition are expected.
+
+Cursor-specific hooks and agent config are documented in [cursor-workflow.md](cursor-workflow.md).
+
 ## One-Time Setup
 
 1. Install recommended extensions when prompted.
